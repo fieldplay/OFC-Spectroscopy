@@ -114,8 +114,8 @@ def get_polarization3(molecule, params):
     polarization = np.zeros(params.freq.size, dtype=np.complex)
     polarization_mnv = np.zeros_like(polarization)
 
-    # for m, n, v in permutations(range(1, len(energy))):
-    for m, n, v in [(3, 1, 2)]:
+    for m, n, v in permutations(range(1, len(energy))):
+    # for m, n, v in [(3, 1, 2)]:
         try:
             # calculate the product of the transition dipole if they are not zeros
             mu_product = transition[(0, v)].mu * transition[(v, n)].mu * \
@@ -129,7 +129,6 @@ def get_polarization3(molecule, params):
                 product(*(3 * [[params.omega_M1, params.omega_M2]]))
             )
             del all_modulations[0:-1]
-            # del list_mods[0]
             print all_modulations, m, n, v
 
             for mods in all_modulations:
@@ -167,13 +166,15 @@ def comb_plot(frequency, value, *args, **kwargs):
     """
     # for omega, val in zip(frequency, value):
     #     plt.plot((omega, omega), (0, val), *args, **kwargs)
-    plt.plot(frequency, value, '.')
+    plt.plot(frequency, value)
 
 ############################################################################################
 #
 #   Run test
 #
 ############################################################################################
+
+
 if __name__ == '__main__':
 
     import numpy as np
@@ -181,9 +182,12 @@ if __name__ == '__main__':
     import pickle
 
     # Energy difference of levels
-    E_10 = 0.05
-    E_21 = 0.05
-    E_32 = 0.05
+    E_10 = 0.6
+    E_21 = 2.354e6
+    E_32 = 1.7
+    # E_10 = 0.5
+    # E_21 = 0.5
+    # E_32 = 0.5
 
     molecule = ADict(
 
@@ -191,36 +195,34 @@ if __name__ == '__main__':
 
         # dipole value and line width for each transition
         transitions={
-            (0, 1): CTransition(4.5e-3, 1.),
-            (1, 0): CTransition(4.5e-3, 1.),
-            (0, 2): CTransition(3.5e-3, 1.),
-            (2, 0): CTransition(3.5e-3, 1.),
-            (0, 3): CTransition(4.0e-3, 1.),
-            (3, 0): CTransition(4.0e-3, 1.),
-            (1, 2): CTransition(2.5e-3, 1.),
-            (2, 1): CTransition(2.5e-3, 1.),
-            (1, 3): CTransition(2.0e-3, 1.),
-            (3, 1): CTransition(2.0e-3, 1.),
-            (2, 3): CTransition(3.0e-3, 1.),
-            (3, 2): CTransition(3.0e-3, 1.)
+            (0, 1): CTransition(4.5e3, 1.),
+            (1, 0): CTransition(4.5e3, 1.),
+            (0, 2): CTransition(3.5e3, 1.),
+            (2, 0): CTransition(3.5e3, 1.),
+            (0, 3): CTransition(4.0e3, 1.),
+            (3, 0): CTransition(4.0e3, 1.),
+            (1, 2): CTransition(2.5e3, 1.),
+            (2, 1): CTransition(2.5e3, 1.),
+            (1, 3): CTransition(2.0e3, 1.),
+            (3, 1): CTransition(2.0e3, 1.),
+            (2, 3): CTransition(3.0e3, 1.),
+            (3, 2): CTransition(3.0e3, 1.)
         }
     )
 
     params = ADict(
         N_frequency=2000,
         comb_size=1,
-        freq_halfwidth=1e2,
+        freq_halfwidth=1e1,
         omega_M1=1.,
-        omega_M2=2.25,
-        # omega_M3=3.,
-        gamma=5e-1,
+        omega_M2=0.,
+        gamma=5e-3,
         delta_freq=2.5,
-        width_g=5.
+        width_g=10.
     )
 
     import time
     start = time.time()
-    # choosing the frequency range
     # frequency = nonuniform_frequency_range_3(params)
     frequency = uniform_frequency_range(params)
     params['freq'] = frequency
@@ -228,49 +230,24 @@ if __name__ == '__main__':
 
     pol3 = get_polarization3(molecule, params)
     print time.time() - start
-    print pol3.imag.min(), pol3.imag.max()
-    pol3 /= np.abs(pol3).max()
-    print pol3.real.max()
-    print pol3.imag.max()
     omega = frequency[:, np.newaxis]
     gaussian = np.exp(-(np.arange(-params.comb_size, params.comb_size)) ** 2 / (2.*params.width_g ** 2))[np.newaxis, :]
     comb_omega = (params.delta_freq * np.arange(-params.comb_size, params.comb_size))[np.newaxis, :]
     field1 = (gaussian*(params.gamma / ((omega - params.omega_M1 - comb_omega)**2 + params.gamma**2))).sum(axis=1)
     field2 = (gaussian*(params.gamma / ((omega - params.omega_M2 - comb_omega)**2 + params.gamma**2))).sum(axis=1)
-    # field3 = (gaussian*(params.gamma / ((omega - params.omega_M3 - comb_omega)**2 + params.gamma**2))).sum(axis=1)
 
-    plt.figure()
-    plt.subplot(211)
-    comb_plot(frequency, field1/field1.max(), 'b-', alpha=0.5, label='Field 1')
-    comb_plot(frequency, field2/field1.max(), 'r-', alpha=0.5, label='Field 2')
-    # comb_plot(frequency, field3/field1.max(), 'g-', alpha=0.5, label='Field 3')
-    comb_plot(frequency, 5.*pol3.real, 'k-', label='$\mathcal{R}e[P^{(3)}(\\omega)]$')
+    fig, ax1 = plt.subplots()
+    ax1.plot(frequency, pol3.real, 'k', linewidth=2.)
+    ax1.set_ylabel('$P^{(3)}(\\omega)$', color='k')
+    ax1.tick_params('y', colors='k')
+    ax2 = ax1.twinx()
+    # ax2.plot(frequency, field1, 'b')
+    # ax2.plot(frequency, field2, 'r')
+    ax2.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
+    ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
+    ax2.tick_params('y', colors='b')
 
-    plt.plot(frequency, np.zeros_like(frequency), 'k-')
-    plt.xlabel("$\\omega_1 + \\omega_2 + \\omega_3 + \\Delta \\omega$ (in GHz)")
-    plt.ylabel("$\mathcal{R}e[P^{(3)}(\\omega)]$")
-    # plt.legend()
-
-    plt.subplot(212)
-    comb_plot(frequency, field1 / field1.max(), 'b-', alpha=0.5, label='Field 1')
-    comb_plot(frequency, field2 / field1.max(), 'r-', alpha=0.5, label='Field 2')
-    # comb_plot(frequency, field3 / field1.max(), 'g-', alpha=0.5, label='Field 3')
-    comb_plot(frequency, pol3.imag, 'k-', label='$\mathcal{I}m[P^{(3)}(\\omega)]$')
-
-    plt.plot(frequency, np.zeros_like(frequency), 'k-')
-    plt.xlabel("$\\omega_1 + \\omega_2 + \\omega_3 + \\Delta \\omega$ (in GHz)")
-    plt.ylabel("$\mathcal{I}m[P^{(3)}(\\omega)]$")
-    # plt.legend()
-    # with open("Pol3_data.pickle", "wb") as output_file:
-    #     pickle.dump(
-    #         {
-    #             "molecules_pol3": pol3,
-    #             "freq": frequency,
-    #             "field1": field1,
-    #             "field2": field2,
-    #             "field3": field3
-    #         }, output_file
-    #     )
-
+    fig.tight_layout()
+    plt.show()
     print time.time() - start
     plt.show()
