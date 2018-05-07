@@ -175,24 +175,24 @@ if __name__ == '__main__':
 
         # dipole value and line width for each transition
         transitions={
-            (0, 1): CTransition(4.5e2, 1.),
-            (1, 0): CTransition(4.5e2, 1.),
-            (0, 2): CTransition(3.5e2, 1.),
-            (2, 0): CTransition(3.5e2, 1.),
-            (1, 2): CTransition(2.5e2, 1.),
-            (2, 1): CTransition(2.5e2, 1.),
+            (0, 1): CTransition(4.5e3, 1.),
+            (1, 0): CTransition(4.5e3, 1.),
+            (0, 2): CTransition(3.5e3, 1.),
+            (2, 0): CTransition(3.5e3, 1.),
+            (1, 2): CTransition(2.5e3, 1.),
+            (2, 1): CTransition(2.5e3, 1.),
         }
     )
 
     params = ADict(
         N_frequency=2000,
         comb_size=10,
-        freq_halfwidth=0.5e2,
-        omega_M1=1.,
-        omega_M2=0.,
-        gamma=5e-4,
-        delta_freq=2.5,
-        width_g=3.
+        freq_halfwidth=2.5e6,
+        omega_M1=0.5,
+        omega_M2=1.5,
+        gamma=5,
+        delta_freq=2.e5,
+        width_g=5.
     )
 
     import time
@@ -217,13 +217,13 @@ if __name__ == '__main__':
     pol3 = np.zeros((4, params.freq.size), dtype=np.complex)
     for i, modulations in enumerate(all_modulations):
         print i, modulations
-        pol3[i] = get_polarization3(molecule, params, modulations).imag
+        pol3[i] = get_polarization3(molecule, params, modulations).real
 
     pol3_sum = pol3.sum(axis=0)
     # pol3_sum = pol3[1] + pol3[6]
 
     fig, axes = plt.subplots(nrows=2, ncols=2, sharex=True, sharey=True)
-    fig.suptitle("$(b_1)$-term contribution to total $P^{(2)}(\\omega)$")
+    fig.suptitle("$All terms' contribution to total $P^{(2)}(\\omega)$")
     for i in range(2):
         for j in range(2):
             axes[i, j].plot(frequency, pol3[2*i+j].real, 'k', linewidth=2.)

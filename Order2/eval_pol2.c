@@ -32,14 +32,15 @@ void pol2_type1(
                             term_D = omega - M_field_i - q * delta_freq - wg_1 + gamma * I,
                             term_X = M_field_h + M_field_i - omega + (p + q) * delta_freq + 2. * gamma * I,
                             term_X_star = - conj(term_X);
-                result += c_p*c_q*(1./(omega - wg_2))*(1./(term_A * term_B) + 1./(term_B * term_X) - 1./(term_A * term_X_star)
-                - 1./(term_C * term_D) - 1./(term_C * term_X) + 1./(term_D * term_X_star));
+                result += c_p*c_q*(1./(omega - wg_2))*(1./(term_A * term_B) + 1./(term_B * term_X) - 1./(term_A * term_X_star));
+//                result += c_p*c_q*(1./(omega - wg_2))*(1./(term_A * term_B) + 1./(term_B * term_X) - 1./(term_A * term_X_star)
+//                - 1./(term_C * term_D) - 1./(term_C * term_X) + 1./(term_D * term_X_star));
 
 
             }
         }
 
-        out[out_i] += -sign*result*0.25*M_PI*I;
+        out[out_i] += -sign*result;
     }
 
 }
