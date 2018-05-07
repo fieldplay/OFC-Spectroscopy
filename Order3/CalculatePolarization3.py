@@ -263,6 +263,5 @@ if __name__ == '__main__':
     ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
     ax2.tick_params('y', colors='b')
     fig.subplots_adjust(wspace=0.30, hspace=0.25)
-    plt.show()
     print time.time() - start
     plt.show()
