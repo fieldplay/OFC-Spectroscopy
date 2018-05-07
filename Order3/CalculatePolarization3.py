@@ -186,18 +186,18 @@ if __name__ == '__main__':
 
         # dipole value and line width for each transition
         transitions={
-            (0, 1): CTransition(4.5e3, 1.),
-            (1, 0): CTransition(4.5e3, 1.),
-            (0, 2): CTransition(3.5e3, 1.),
-            (2, 0): CTransition(3.5e3, 1.),
-            (0, 3): CTransition(4.0e3, 1.),
-            (3, 0): CTransition(4.0e3, 1.),
-            (1, 2): CTransition(2.5e3, 1.),
-            (2, 1): CTransition(2.5e3, 1.),
-            (1, 3): CTransition(2.0e3, 1.),
-            (3, 1): CTransition(2.0e3, 1.),
-            (2, 3): CTransition(3.0e3, 1.),
-            (3, 2): CTransition(3.0e3, 1.)
+            (0, 1): CTransition(4.5e2, 1.),
+            (1, 0): CTransition(4.5e2, 1.),
+            (0, 2): CTransition(3.5e2, 1.),
+            (2, 0): CTransition(3.5e2, 1.),
+            (0, 3): CTransition(4.0e2, 1.),
+            (3, 0): CTransition(4.0e2, 1.),
+            (1, 2): CTransition(2.5e2, 1.),
+            (2, 1): CTransition(2.5e2, 1.),
+            (1, 3): CTransition(2.0e2, 1.),
+            (3, 1): CTransition(2.0e2, 1.),
+            (2, 3): CTransition(3.0e2, 1.),
+            (3, 2): CTransition(3.0e2, 1.)
         }
     )
 
@@ -207,7 +207,7 @@ if __name__ == '__main__':
         freq_halfwidth=0.5e2,
         omega_M1=1.,
         omega_M2=0.,
-        gamma=5e-3,
+        gamma=5e-4,
         delta_freq=2.5,
         width_g=3.
     )
@@ -236,14 +236,15 @@ if __name__ == '__main__':
         print i, modulations
         pol3[i] = get_polarization3(molecule, params, modulations)
 
-    pol3_sum = pol3.sum(axis=0)
+    # pol3_sum = pol3.sum(axis=0)
+    pol3_sum = pol3[1] + pol3[6]
+
     fig, axes = plt.subplots(nrows=3, ncols=3, sharex=True, sharey=True)
     for i in range(3):
         for j in range(3):
             if (i != 2) or (j != 2):
-                axes[i, j].set_title('Modulations = {}, {}, {}'.format(*all_modulations[3*i+j]))
                 axes[i, j].plot(frequency, pol3[3*i+j].real, 'k', linewidth=2.)
-                axes[i, j].set_ylabel('$P^{(3)}(\\omega)$', color='k')
+                axes[i, j].set_ylabel('Modulations = {}, {}, {} \n'.format(*all_modulations[3*i+j]) + '$P^{(3)}(\\omega)$', color='k')
                 axes[i, j].tick_params('y', colors='k')
                 ax2 = axes[i, j].twinx()
                 ax2.plot(frequency, field1, 'b', alpha=0.6)
@@ -252,9 +253,8 @@ if __name__ == '__main__':
                 ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
                 ax2.tick_params('y', colors='b')
 
-    axes[2, 2].set_title("All modulations")
     axes[2, 2].plot(frequency, pol3_sum.real, 'k', linewidth=2.)
-    axes[2, 2].set_ylabel('$P^{(3)}(\\omega)$', color='k')
+    axes[2, 2].set_ylabel('All modulations \n' + '$P^{(3)}(\\omega)$', color='k')
     axes[2, 2].tick_params('y', colors='k')
     ax2 = axes[2, 2].twinx()
     ax2.plot(frequency, field1, 'b', alpha=0.6)
@@ -262,6 +262,6 @@ if __name__ == '__main__':
     ax2.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
     ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
     ax2.tick_params('y', colors='b')
-    fig.subplots_adjust(wspace=0.30, hspace=0.25)
+    fig.subplots_adjust(wspace=0.30, hspace=0.00)
     print time.time() - start
     plt.show()

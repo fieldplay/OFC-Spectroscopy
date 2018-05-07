@@ -57,11 +57,11 @@ void pol3_total(
 )
 {
     pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, conj(wg_vl), conj(wg_nl), -conj(wg_vl), -1);
-//    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, conj(wg_nv), conj(wg_mv), wg_vl, 1);
-//    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, conj(wg_nv), -wg_vm, -conj(wg_ml), 1);
-//    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, conj(wg_mn), -wg_nl, wg_vl, -1);
-//    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, -wg_vn, conj(wg_nl), -conj(wg_ml), 1);
-//    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, -wg_nm, conj(wg_mv), wg_vl, -1);
-//    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, -wg_nm, -wg_mv, -conj(wg_ml), -1);
-//    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, -wg_ml, -wg_nl, wg_vl, 1);
+    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, conj(wg_nv), conj(wg_mv), wg_vl, 1);
+    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, conj(wg_nv), -wg_vm, -conj(wg_ml), 1);
+    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, conj(wg_mn), -wg_nl, wg_vl, -1);
+    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, -wg_vn, conj(wg_nl), -conj(wg_ml), 1);
+    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, -wg_nm, conj(wg_mv), wg_vl, -1);
+    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, -wg_nm, -wg_mv, -conj(wg_ml), -1);
+    pol3(out, freq, freq_size, comb_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, -wg_ml, -wg_nl, wg_vl, 1);
 }
