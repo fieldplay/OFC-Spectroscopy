@@ -1,7 +1,7 @@
 from itertools import permutations, product, combinations_with_replacement
 from collections import namedtuple
 from ctypes import Structure, c_double, c_int, POINTER, Array
-
+import pickle
 from eval_pol3_wrapper import pol3_total
 
 ############################################################################################
@@ -157,6 +157,7 @@ def comb_plot(frequency, value, ax, *args, **kwargs):
     """
     for omega, val in zip(frequency, value):
         ax.plot((omega, omega), (0, val), *args, **kwargs)
+    ax.plot(frequency, np.zeros_like(value), 'k', linewidth=2.)
     # plt.plot(frequency, value)
 
 ############################################################################################
@@ -179,7 +180,7 @@ if __name__ == '__main__':
     molecule = ADict(
 
         #  Energy difference of levels (should be multiples of delta_freq)
-        energies=np.cumsum([0, 1, 20, 1]) * delta_freq,
+        energies=np.cumsum([0, 2, 20000, 3]) * delta_freq,
 
         # dipole value and line width for each transition
         transitions={
@@ -269,20 +270,21 @@ if __name__ == '__main__':
 
     def plot_no_modulations():
         pol3 = get_polarization3(molecule, params, [params.omega_M2, params.omega_M2, params.omega_M1])
-        fig, ax1 = plt.subplots()
-        fig.suptitle("$P^{(3)}(\\omega)$")
-
-        # ax1.plot(frequency / delta_freq, np.abs(pol3), 'k', linewidth=2.)
-        comb_plot(frequency / delta_freq, np.abs(pol3), ax1, 'k', linewidth=2.)
-        ax1.set_ylabel('$P^{(3)}(\\omega)$', color='k')
-        ax1.tick_params('y', colors='k')
-        ax1.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
-        ax2 = ax1.twinx()
-        comb_plot(frequency / delta_freq, field1, ax2, 'b', alpha=0.3)
-        comb_plot(frequency / delta_freq, field2, ax2, 'r', alpha=0.3)
-        ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
-        ax2.tick_params('y', colors='b')
-        print time.time() - start
-        plt.show()
+        pickle.dump({"pol3_2_20000_3": pol3}, open("Plots/pol23.p", "wb"))
+        # fig, ax1 = plt.subplots()
+        # fig.suptitle("$P^{(3)}(\\omega)$")
+        #
+        # # ax1.plot(frequency / delta_freq, np.abs(pol3), 'k', linewidth=2.)
+        # comb_plot(frequency / delta_freq, np.abs(pol3), ax1, 'k', linewidth=2.)
+        # ax1.set_ylabel('$P^{(3)}(\\omega)$', color='k')
+        # ax1.tick_params('y', colors='k')
+        # ax1.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
+        # ax2 = ax1.twinx()
+        # comb_plot(frequency / delta_freq, field1, ax2, 'b', alpha=0.3)
+        # comb_plot(frequency / delta_freq, field2, ax2, 'r', alpha=0.3)
+        # ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
+        # ax2.tick_params('y', colors='b')
+        # print time.time() - start
+        # plt.show()
 
     plot_no_modulations()
