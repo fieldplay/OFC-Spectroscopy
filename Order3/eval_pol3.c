@@ -35,7 +35,7 @@ void pol3(
                                 term_Z_star = conj(term_Z),
                                 term_S = omega - M_field_i + M_field_j + (r - q) * delta_freq - wg_1 + 2. * gamma * I,
                                 term_X = omega + M_field_j + r * delta_freq - wg_2 + gamma * I;
-                    result += c_p*c_q*c_r*(1./(wg_3 - omega))*(1./(term_X * term_Y * term_R) + 1./(term_X * term_S * term_R)
+                    result += (1./(wg_3 - omega))*(1./(term_X * term_Y * term_R) + 1./(term_X * term_S * term_R)
                                           + 1./(term_X * term_S * term_Z) - 1./(term_Y * term_R * term_Z_star));
                 }
 

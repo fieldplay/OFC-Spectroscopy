@@ -1,39 +1,27 @@
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
-
-with open("pol33.p") as f:
-    pol33 = pickle.load(f)["pol3_3_20000_3"]
-    pol33 = pol33[pol33.real > 0.01e10]
-
-with open("pol32.p") as f:
-    pol32 = pickle.load(f)["pol3_3_20000_2"]
-    pol32 = pol32[pol32.real > 0.01e10]
-
-with open("pol23.p") as f:
-    pol23 = pickle.load(f)["pol3_2_20000_3"]
-    pol23 = pol23[pol23.real > 0.01e10]
-
-index = []
-for i in range(1, len(pol33)):
-    if np.abs(pol33.real[i] - pol33.real[i-1]) < 100:
-        index.append(i)
-index = []
-for i in range(1, len(pol32)):
-    if np.abs(pol32.real[i] - pol32.real[i-1]) < 100:
-        index.append(i)
-index = []
-for i in range(1, len(pol23)):
-    if np.abs(pol23.real[i] - pol23.real[i-1]) < 100:
-        index.append(i)
-pol33 = np.delete(pol33, index)
-pol32 = np.delete(pol32, index)
-pol23 = np.delete(pol23, index)
+from scipy.interpolate import interp1d
 
 
+def find_envelope(file):
+    with open(file + ".p") as f:
+        pol = pickle.load(f)[file[:3] + "3_" + file[3] + "_20000_" + file[4]]
+        pol = pol[pol.real > 1e8]
+    pol = pol[np.where([abs(pol[i] - pol[i - 1]) > 100 for i in range(1, len(pol))])]
+    freq = range(0, len(pol))
+    print freq
+    func = interp1d(freq, pol, kind='cubic')
+    freq_new = np.arange(0, len(pol)-1, 0.1)
+    pol_new = func(freq_new)  # use interpolation function returned by `interp1d`
+    return freq_new, pol_new.real
+
+freq33, pol33 = find_envelope("pol33")
+freq32, pol32 = find_envelope("pol32")
+freq23, pol23 = find_envelope("pol23")
 plt.figure()
-plt.plot(pol33.real, 'r')
-
-plt.plot(pol32.real, 'b')
-plt.plot(pol23.real, 'k')
+plt.plot(freq33, pol33, 'r', label='33')
+plt.plot(freq32, pol32, 'b', label='32')
+plt.plot(freq23, pol23, 'k', label='23')
+plt.legend()
 plt.show()
