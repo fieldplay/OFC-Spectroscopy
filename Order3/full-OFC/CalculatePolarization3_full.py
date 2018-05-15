@@ -157,7 +157,7 @@ def comb_plot(frequency, value, ax, *args, **kwargs):
     """
     for omega, val in zip(frequency, value):
         ax.plot((omega, omega), (0, val), *args, **kwargs)
-    ax.plot(frequency, np.zeros_like(value), 'k', linewidth=2.)
+    # ax.plot(frequency, np.zeros_like(value), 'k', linewidth=2.)
     # plt.plot(frequency, value)
 
 
@@ -190,8 +190,8 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import pickle
 
-    delta_freq = 1
-    transition = CTransition(0.5, 1.)
+    delta_freq = 0.1
+    transition = CTransition(0.5e-3, 1.)
 
     molecule = ADict(
 
@@ -219,8 +219,8 @@ if __name__ == '__main__':
         N_frequency=2000,
         freq_halfwidth=10.,
         comb_size=20,
-        omega_M1=0.07,
-        omega_M2=0.03,
+        omega_M1=0.005,
+        omega_M2=0.0,
         gamma=5e-6,
         delta_freq=delta_freq,
         width_g=6.
@@ -228,9 +228,20 @@ if __name__ == '__main__':
 
     import time
     start = time.time()
+    frequency = nonuniform_frequency_range_3(params)
+    print frequency
+    params['freq'] = frequency
 
-    def plot_all_modulations(frequency):
-        params['freq'] = frequency
+    print params.freq.size
+
+    print time.time() - start
+
+    omega = frequency[:, np.newaxis]
+    comb_omega = (params.delta_freq * np.arange(-params.comb_size, params.comb_size))[np.newaxis, :]
+    field1 = (params.gamma / ((omega - params.omega_M1 - comb_omega) ** 2 + params.gamma ** 2)).sum(axis=1)
+    field2 = (params.gamma / ((omega - params.omega_M2 - comb_omega) ** 2 + params.gamma ** 2)).sum(axis=1)
+
+    def plot_all_modulations():
         all_modulations = list(
             product(*(3 * [[params.omega_M1, params.omega_M2]]))
         )
@@ -243,32 +254,35 @@ if __name__ == '__main__':
         pol3_sum = pol3[1] + pol3[6]
 
         fig, axes = plt.subplots(nrows=3, ncols=3, sharex=True, sharey=True)
-        fig.suptitle("$(b_1)$-term contribution to total $P^{(3)}(\\omega)$")
+        fig.suptitle("$Total $P^{(3)}(\\omega)$")
         for i in range(3):
             for j in range(3):
                 if (i != 2) or (j != 2):
-                    axes[i, j].plot(frequency / delta_freq, np.abs(pol3[3 * i + j]), 'k', linewidth=2.)
+                    comb_plot(frequency / delta_freq, np.abs(pol3)[3 * i + j], axes[i, j], 'k', linewidth=2.)
                     axes[i, j].set_ylabel(
                         'Modulations = {}, {}, {} \n'.format(*all_modulations[3 * i + j]) + '$P^{(3)}(\\omega)$',
                         color='k')
                     axes[i, j].tick_params('y', colors='k')
                     ax2 = axes[i, j].twinx()
+                    comb_plot(frequency / delta_freq, field1, ax2, 'b', alpha=0.6)
+                    comb_plot(frequency / delta_freq, field2, ax2, 'r', alpha=0.6)
                     ax2.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
                     ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
                     ax2.tick_params('y', colors='b')
 
-        axes[2, 2].plot(frequency, pol3_sum.real, 'k', linewidth=2.)
+        comb_plot(frequency / delta_freq, pol3_sum.real, axes[2, 2], 'k', linewidth=2.)
         axes[2, 2].set_ylabel('All modulations \n' + '$P^{(3)}(\\omega)$', color='k')
         axes[2, 2].tick_params('y', colors='k')
         ax2 = axes[2, 2].twinx()
+        comb_plot(frequency / delta_freq, field1, ax2, 'b', alpha=0.6)
+        comb_plot(frequency / delta_freq, field2, ax2, 'r', alpha=0.6)
         ax2.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
         ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
         ax2.tick_params('y', colors='b')
         fig.subplots_adjust(wspace=0.30, hspace=0.00)
         print time.time() - start
 
-    def plot_no_modulations(frequency):
-        params['freq'] = frequency
+    def plot_no_modulations():
         pol3 = get_polarization3(molecule, params, [params.omega_M2, params.omega_M2, params.omega_M1])
         fig, ax1 = plt.subplots()
         comb_plot(frequency / delta_freq, np.abs(pol3), ax1, 'k', linewidth=2.)
@@ -276,10 +290,12 @@ if __name__ == '__main__':
         ax1.tick_params('y', colors='k')
         ax1.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
         ax2 = ax1.twinx()
+        comb_plot(frequency / delta_freq, field1, ax2, 'b', alpha=0.4)
+        comb_plot(frequency / delta_freq, field2, ax2, 'r', alpha=0.4)
         ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
         ax2.tick_params('y', colors='b')
         print time.time() - start
 
-    plot_no_modulations(nonuniform_frequency_range_3(params))
-    plot_no_modulations(uniform_frequency_range(params, offset=0))
+    plot_no_modulations()
+    # plot_all_modulations()
     plt.show()
