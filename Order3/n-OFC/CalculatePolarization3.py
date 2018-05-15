@@ -191,7 +191,7 @@ if __name__ == '__main__':
     import pickle
 
     delta_freq = 1
-    comb_size = 40
+    comb_size = 10
     transition = CTransition(0.5, 1.)
 
     molecule = ADict(

@@ -41,6 +41,7 @@ lib.pol3_total.argtypes = (
     c_double,   # const double M_field2,
     c_double,   # const double M_field3, // Comb parameters
     c_double,   # const double width_g
+    c_int,      # const int N_terms
     c_complex,  # const cmplx wg_nv,
     c_complex,  # const cmplx wg_mv,
     c_complex,  # const cmplx wg_vl,
@@ -65,6 +66,7 @@ def pol3_total(out, params, M_field_h, M_field_i, M_field_j, wg_nv, wg_mv, wg_vl
         M_field_i,
         M_field_j,
         params.width_g,
+        params.N_terms,
         c_complex(wg_nv.real, wg_nv.imag),
         c_complex(wg_mv.real, wg_mv.imag),
         c_complex(wg_vl.real, wg_vl.imag),

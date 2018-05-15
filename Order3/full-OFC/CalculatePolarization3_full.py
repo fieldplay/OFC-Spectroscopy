@@ -44,58 +44,22 @@ def uniform_frequency_range(params, offset=0.):
     )
 
 
-def nonuniform_frequency_range_3(params, freq_offset=None):
+def nonuniform_frequency_range_3(molecule, params):
     """
     Generation of nonuniform frequency range taylored to the 3d order optical effects 
     :param params: 
-    :param freq_offset:
     :return: 
     """
-    omega_M1 = params.omega_M1
-    omega_M2 = params.omega_M2
-    # omega_M3 = params.omega_M3
+    energy = molecule.energies
 
-    # If freq_offset has not been specified, generate all unique third order combinations
-    if not freq_offset:
-        freq_offset = np.array([
-            sum(_) for _ in combinations_with_replacement(
-                # [omega_M1, omega_M2, omega_M3, -omega_M1, -omega_M2, -omega_M3], 3
-                [omega_M1, omega_M2, -omega_M1, -omega_M2], 3
-            )
-        ])
+    w0 = np.ceil((energy[len(energy)-1] - energy[0])/params.delta_freq)
+    w0 = 0.
+    comb_lines = []
+    [comb_lines.append(w0 + i*params.delta_freq) for i in range(params.comb_size)]
+    [comb_lines.append(w0 - i*params.delta_freq) for i in range(params.comb_size)]
 
-        # get number of digits to round to
-        decimals = np.log10(np.abs(freq_offset[np.nonzero(freq_offset)]).min())
-        decimals = int(np.ceil(abs(decimals))) + 4
-
-        # round of
-        np.round(freq_offset, decimals, out=freq_offset)
-
-        freq_offset = np.unique(freq_offset)
-        print freq_offset
-
-    # def points_for_lorentzian(mean):
-    #     # L = np.array([0, 0.02, 0.05, 0.1, 0.2, 0.4, 0.5, 1.])
-    #     L = np.array([0, 0.05, 0.4, 1.])
-    #     L = np.append(-L[::-1], L[1::])
-    #
-    #     return mean + 4. * params.gamma * L
-
-    # lorentzians_per_comb_line = np.hstack(points_for_lorentzian(_) for _ in freq_offset)
-    lorentzians_per_comb_line = freq_offset
-
-    lorentzians_per_comb_line = lorentzians_per_comb_line[:, np.newaxis]
-
-    # Positions of all comb lines
-    position_comb_lines = (params.delta_freq * np.arange(-params.comb_size, params.comb_size))[np.newaxis, :]
-
-    freq = lorentzians_per_comb_line + position_comb_lines
-    freq = freq.reshape(-1)
-    freq = freq[np.nonzero(
-        (- params.freq_halfwidth < freq) & (freq < params.freq_halfwidth)
-    )]
-    freq.sort()
-
+    freq = np.asarray(comb_lines)[:, np.newaxis]    # + np.linspace(-0.3*params.delta_freq, 0.3*params.delta_freq, 7)
+    freq = np.unique(np.sort(freq.reshape(-1)))
     return np.ascontiguousarray(freq)
 
 
@@ -158,7 +122,7 @@ def comb_plot(frequency, value, ax, *args, **kwargs):
     for omega, val in zip(frequency, value):
         ax.plot((omega, omega), (0, val), *args, **kwargs)
     # ax.plot(frequency, np.zeros_like(value), 'k', linewidth=2.)
-    # plt.plot(frequency, value)
+    # ax.plot(frequency, value, *args, **kwargs)
 
 
 def linear_spectra(molecule, omega):
@@ -191,7 +155,7 @@ if __name__ == '__main__':
     import pickle
 
     delta_freq = 0.1
-    transition = CTransition(0.5e-3, 1.)
+    transition = CTransition(0.5e0, 1.)
 
     molecule = ADict(
 
@@ -217,18 +181,20 @@ if __name__ == '__main__':
 
     params = ADict(
         N_frequency=2000,
-        freq_halfwidth=10.,
-        comb_size=20,
-        omega_M1=0.005,
-        omega_M2=0.0,
+        freq_halfwidth=1.5,
+        comb_size=25,
+        omega_M1=0.05,
+        omega_M2=0.15,
         gamma=5e-6,
         delta_freq=delta_freq,
-        width_g=6.
+        width_g=6.,
+        N_terms=5
     )
 
     import time
     start = time.time()
-    frequency = nonuniform_frequency_range_3(params)
+    frequency = nonuniform_frequency_range_3(molecule, params)
+    # frequency = uniform_frequency_range(params, offset=0)
     print frequency
     params['freq'] = frequency
 
@@ -298,4 +264,5 @@ if __name__ == '__main__':
 
     plot_no_modulations()
     # plot_all_modulations()
+
     plt.show()
