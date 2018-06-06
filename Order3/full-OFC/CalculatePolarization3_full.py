@@ -194,7 +194,7 @@ if __name__ == '__main__':
 
     params = ADict(
         N_frequency=1000,
-        comb_size=50,
+        comb_size=120,
         omega_M1=0.05,
         omega_M2=0.07,
         gamma=5e-6,
@@ -206,7 +206,6 @@ if __name__ == '__main__':
     import time
     start = time.time()
     frequency = nonuniform_frequency_range_3(molecule, params)[0]
-    print frequency
     params['freq'] = frequency
 
     print params.freq.size
@@ -241,7 +240,7 @@ if __name__ == '__main__':
 
         pol3 /= pol3.max()
         pol3_sum_field_free = pol3[1] + pol3[6]
-        comb_plot(frequency / delta_freq, pol3_sum_field_free.imag, axes, clr, linewidth=1.)
+        comb_plot(frequency / delta_freq, pol3_sum_field_free.real, axes, clr, linewidth=1.)
         return pol3_sum_field_free
 
     def plot_no_modulations(ax1, clr):
@@ -293,11 +292,14 @@ if __name__ == '__main__':
     fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True)
     fig.suptitle("Total $P^{(3)}(\\omega)$")
     pol3_matrix = np.empty((params.freq.size, 3), dtype=np.complex)
-    molecule.energies = np.cumsum([0, 14, 7, 13]) * delta_freq
+    # molecule.energies = np.cumsum([0, 14, 7, 13]) * delta_freq
+    molecule.energies = np.cumsum([0, 12, 6e1, 13]) * delta_freq
     pol3_matrix[:, 0] = plot_all_modulations(axes, 'k')
-    molecule.energies = np.cumsum([0, 4, 3, 4]) * delta_freq
+    # molecule.energies = np.cumsum([0, 4, 3, 4]) * delta_freq
+    molecule.energies = np.cumsum([0, 13, 6e1, 13]) * delta_freq
     pol3_matrix[:, 1] = plot_all_modulations(axes, 'b')
-    molecule.energies = np.cumsum([0, 8, 11, 3]) * delta_freq
+    # molecule.energies = np.cumsum([0, 8, 11, 3]) * delta_freq
+    molecule.energies = np.cumsum([0, 14, 6e1, 14]) * delta_freq
     pol3_matrix[:, 2] = plot_all_modulations(axes, 'r')
     axes.set_xlabel('$(\omega - \omega_{central})/ \Delta \omega$', color='k')
     axes.set_ylabel('Field-free polarizations \n' + '$P^{(3)}(\\omega)$', color='k')
@@ -313,6 +315,8 @@ if __name__ == '__main__':
     # axes.set_ylim(-4., 4.)
     print time.time() - start
     plt.show()
+
+    print frequency.max()/delta_freq, frequency.min()/delta_freq
 
     with open("pol3_matrix.pickle", "wb") as f:
         pickle.dump(
