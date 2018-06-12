@@ -38,7 +38,7 @@ void pol3_XYR(
                 }
             }
 
-            out[out_i] += sign*result;
+            out[out_i] += sign*result/(omega - wg_3);
         }
 
 }
@@ -76,7 +76,7 @@ void pol3_XSR(
                 }
             }
 
-            out[out_i] += sign*result;
+            out[out_i] += sign*result/(omega - wg_3);
         }
 
 }
@@ -114,7 +114,7 @@ void pol3_XSZ(
                 }
             }
 
-            out[out_i] += sign*result;
+            out[out_i] += sign*result/(omega - wg_3);
         }
 
 }
@@ -153,7 +153,7 @@ void pol3_YRZstar(
                 }
             }
 
-            out[out_i] -= sign*result;
+            out[out_i] -= sign*result/(omega - wg_3);
         }
 
 }
@@ -170,12 +170,6 @@ void pol3(
     pol3_XSZ(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, wg_3, wg_2, wg_1, sign);
     pol3_YRZstar(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, wg_3, wg_2, wg_1, sign);
 
-    #pragma omp parallel for
-    for(int out_i = 0; out_i < freq_size; out_i++)
-        {
-            const double omega = freq[out_i];
-            out[out_i] *= 3.*M_PI*M_PI/(omega - wg_3);
-        }
 }
 
 
