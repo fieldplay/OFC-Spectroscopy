@@ -44,12 +44,12 @@ for i in range(3):
     # gaussian = (1. / (sigma * np.sqrt(np.pi))) * np.exp(-(x - 0.5) ** 2 / (2 * sigma ** 2))
     #   gaussian *= np.random.rand(gaussian.size)
 
-    gaussian = np.sin(4 * np.pi * (x - x.min()) / x.max()) * np.exp(-(x - 0.5) ** 2 / (2 * sigma ** 2))
+    gaussian = np.sin(2 * (i+1) * np.pi * (x - x.min()) / x.max()) * np.exp(-(x - 0.5) ** 2 / (2 * sigma ** 2))
     # gaussian = np.exp(-(x - 0.5) ** 2 / (2 * sigma ** 2))
     het_field = sum(q * np.vdot(q, gaussian) for q in Q_mat[:, 3:].T)
     det[i] = np.abs(np.asarray([np.vdot(pol3_mat[:, j], het_field) for j in range(3)]))
     det[i] /= det[i][i]
-    het_field *= np.random.uniform(0.95, 1.05, het_field.shape)
+    het_field *= np.random.uniform(0.99, 1.01, het_field.shape)
     het_field_1 = het_field.copy()
     het_field_1[::2] = 0.0
     het_field_2 = het_field.copy()
@@ -62,8 +62,8 @@ for i in range(3):
 
     comb_plot(frequency, het_field_1, axes[2], colors[i], alpha=0.5, linewidth=1.)
     comb_plot(frequency, het_field_2, axes[3], colors[i], alpha=0.5, linewidth=1.)
-    axes[2].plot(frequency[1::2], het_field.copy()[1::2], color=colors[i], linewidth=2.)
-    axes[3].plot(frequency[::2], het_field.copy()[::2], color=colors[i], linewidth=2.)
+    # axes[2].plot(frequency[1::2], het_field.copy()[1::2], color=colors[i], linewidth=2.)
+    # axes[3].plot(frequency[::2], het_field.copy()[::2], color=colors[i], linewidth=2.)
 
     det_noise[i] = np.abs(np.asarray([np.vdot(pol3_mat[:, j], het_field) for j in range(3)]))
     det_noise[i] /= det_noise[i][i]
@@ -72,7 +72,7 @@ print det
 print
 print det_noise
 print
-print 1./np.linalg.det(det)
-print 1./np.linalg.det(det_noise)
+print np.log(1./np.linalg.det(det))
+print np.log(1./np.linalg.det(det_noise))
 
 plt.show()

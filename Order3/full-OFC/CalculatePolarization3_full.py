@@ -194,7 +194,7 @@ if __name__ == '__main__':
 
     params = ADict(
         N_frequency=1000,
-        comb_size=50,
+        comb_size=250,
         omega_M1=0.05,
         omega_M2=0.07,
         gamma=5e-6,
@@ -249,11 +249,6 @@ if __name__ == '__main__':
         ax1.set_ylabel('$P^{(3)}(\\omega)$', color='k')
         ax1.tick_params('y', colors='k')
         ax1.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
-        # ax2 = ax1.twinx()
-        # plt.plot(field_frequency1 / delta_freq, field1, 'b', alpha=0.4)
-        # plt.plot(field_frequency2 / delta_freq, field2, 'r', alpha=0.4)
-        # ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
-        # ax2.tick_params('y', colors='b')
         print time.time() - start
 
     def plot_spacing_dependence():
@@ -264,12 +259,11 @@ if __name__ == '__main__':
         for i, delta in enumerate(list_delta_freq):
             axes[i/3, i % 3].set_title('$\Delta \omega = $' + str(list_delta_freq[i]))
             params.delta_freq = delta
-            # params['freq'] = nonuniform_frequency_range_3(molecule, params)[0]
             for j, energy in enumerate(mol_energies):
                 molecule.energies = energy
                 plot_no_modulations(axes[i/3, i % 3], colors[j])
 
-    plot_spacing_dependence()
+    # plot_spacing_dependence()
 
     def plot_L_spectra_NL_pol3(molecule, ax, clr):
         frequency = np.linspace(3.5e6 - 10, 3.5e6 + 15, 10000)
@@ -279,23 +273,23 @@ if __name__ == '__main__':
         # ax.plot(frequency, pol3.real, clr, linewidth=1., alpha=0.6)
 
 
-    # fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True)
-    # fig1, axes1 = plt.subplots(nrows=1, ncols=1)
-    # fig.suptitle("Total $P^{(3)}(\\omega)$")
-    # pol3_matrix = np.empty((params.freq.size, 3), dtype=np.complex)
-    # molecule.energies = np.cumsum([0, 26, 3.5e7, 35]) * delta_freq
-    # plot_L_spectra_NL_pol3(molecule, axes1, 'k')
-    # pol3_matrix[:, 0] = plot_all_modulations(axes, 'k')
-    # molecule.energies = np.cumsum([0, 25, 3.5e7, 36]) * delta_freq
-    # plot_L_spectra_NL_pol3(molecule, axes1, 'b')
-    # pol3_matrix[:, 1] = plot_all_modulations(axes, 'b')
-    # molecule.energies = np.cumsum([0, 24, 3.5e7, 37]) * delta_freq
-    # plot_L_spectra_NL_pol3(molecule, axes1, 'r')
-    # pol3_matrix[:, 2] = plot_all_modulations(axes, 'r')
-    # axes.set_xlabel('$(\omega - \omega_{central})/ \Delta \omega$', color='k')
-    # axes.set_ylabel('Field-free polarizations \n' + '$P^{(3)}(\\omega)$', color='k')
-    # axes.tick_params('y', colors='k')
-    # print time.time() - start
+    fig, axes = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True)
+    fig1, axes1 = plt.subplots(nrows=1, ncols=1)
+    fig.suptitle("Total $P^{(3)}(\\omega)$")
+    pol3_matrix = np.empty((params.freq.size, 3), dtype=np.complex)
+    molecule.energies = np.cumsum([0, 26, 3.5e7, 35]) * delta_freq
+    plot_L_spectra_NL_pol3(molecule, axes1, 'k')
+    pol3_matrix[:, 0] = plot_all_modulations(axes, 'k')
+    molecule.energies = np.cumsum([0, 25, 3.5e7, 36]) * delta_freq
+    plot_L_spectra_NL_pol3(molecule, axes1, 'b')
+    pol3_matrix[:, 1] = plot_all_modulations(axes, 'b')
+    molecule.energies = np.cumsum([0, 24, 3.5e7, 37]) * delta_freq
+    plot_L_spectra_NL_pol3(molecule, axes1, 'r')
+    pol3_matrix[:, 2] = plot_all_modulations(axes, 'r')
+    axes.set_xlabel('$(\omega - \omega_{central})/ \Delta \omega$', color='k')
+    axes.set_ylabel('Field-free polarizations \n' + '$P^{(3)}(\\omega)$', color='k')
+    axes.tick_params('y', colors='k')
+    print time.time() - start
     plt.show()
 
     print frequency.max()/delta_freq, frequency.min()/delta_freq

@@ -11,13 +11,13 @@ void pol2_XY(
     const cmplx wg_2, const cmplx wg_1, int sign
 )
 {
-    int m_p0 = ceil((crealf(wg_1) - M_field_p)/delta_freq);
+    int m_p0 = (crealf(wg_1) - M_field_p)/delta_freq;
 
     #pragma omp parallel for
     for(int out_i = 0; out_i < freq_size; out_i++)
         {
             const double omega = freq[out_i];
-            int m_q0 = ceil(omega - M_field_q - (crealf(wg_1))/delta_freq);
+            int m_q0 = omega - M_field_q - (crealf(wg_1))/delta_freq;
 
             cmplx result = 0. + 0. * I;
 
@@ -42,7 +42,7 @@ void pol2_XZ(
     const cmplx wg_2, const cmplx wg_1, int sign
 )
 {
-    int m_p0 = ceil((crealf(wg_1) - M_field_p)/delta_freq);
+    int m_p0 = (crealf(wg_1) - M_field_p)/delta_freq;
 
     #pragma omp parallel for
     for(int out_i = 0; out_i < freq_size; out_i++)
@@ -50,7 +50,7 @@ void pol2_XZ(
             const double omega = freq[out_i];
 
             cmplx result = 0. + 0. * I;
-            int m_q0 = ceil(omega - M_field_q - M_field_p)/delta_freq - m_p0;
+            int m_q0 = (omega - M_field_q - M_field_p)/delta_freq - m_p0;
 
             for(int m_p = m_p0 - N_terms; m_p < m_p0 + N_terms; m_p++)
             {
@@ -77,8 +77,8 @@ void pol2_YZstar(
     for(int out_i = 0; out_i < freq_size; out_i++)
         {
             const double omega = freq[out_i];
-            int m_q0 = ceil(omega - M_field_q - crealf(wg_1))/delta_freq;
-            int m_p0 = ceil(omega - M_field_q - M_field_p)/delta_freq - m_q0;
+            int m_q0 = (omega - M_field_q - crealf(wg_1))/delta_freq;
+            int m_p0 = (omega - M_field_q - M_field_p)/delta_freq - m_q0;
 
             cmplx result = 0. + 0. * I;
 
