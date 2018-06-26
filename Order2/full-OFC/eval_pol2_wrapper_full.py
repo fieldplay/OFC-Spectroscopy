@@ -52,7 +52,7 @@ lib.pol2_total.restype = None
 def pol2_total(out, params, M_field_p, M_field_q, wg_nl, wg_ml, wg_mn, wg_nm):
     return lib.pol2_total(
         out.ctypes.data_as(POINTER(c_complex)),
-        params.freq.ctypes.data_as(POINTER(c_double)),
+        params.frequency.ctypes.data_as(POINTER(c_double)),
         out.size,
         params.delta_freq,
         params.gamma,

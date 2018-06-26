@@ -57,12 +57,13 @@ def get_polarization2(molecule, params, modulations):
     :return: numpy.array -- polarization
     """
 
+    print params.delta_freq
     # introducing aliases
     transition = molecule.transitions
     energy = molecule.energies
 
     # initialize output array with zeros
-    polarization = np.zeros(params.freq.size, dtype=np.complex)
+    polarization = np.zeros(params.frequency.size, dtype=np.complex)
     polarization_mn = np.zeros_like(polarization)
 
     for m, n in permutations(range(1, len(energy)), 2):
@@ -133,7 +134,7 @@ def calculate_chi2(molecule, omega, omega1):
     chi2 = np.empty((N, N), dtype=np.complex)
 
     for m, n in permutations((1, 2), 2):
-        print m, n
+        # print m, n
         chi2 += transition[(0, n)].mu * transition[(n, m)].mu * transition[(m, 0)].mu /\
                 ((energy[n] - energy[0] - omega[:, np.newaxis] - 1j*transition[(n, 0)].g)
                  * (energy[m] - energy[0] - omega1[np.newaxis, :] - 1j*transition[(m, 0)].g))
@@ -141,7 +142,6 @@ def calculate_chi2(molecule, omega, omega1):
     fig, ax = plt.subplots(nrows=1, ncols=1)
     img = ax.imshow(chi2.real, extent=[omega.min(), omega.max(), omega1.min(), omega1.max()])
     fig.colorbar(img, ax=ax)
-    plt.show()
 
 
 ############################################################################################
@@ -155,7 +155,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import pickle
 
-    delta_freq = 10
+    delta_freq = 14
 
     molecule = ADict(
 
@@ -164,18 +164,18 @@ if __name__ == '__main__':
 
         # dipole value and line width for each transition
         transitions={
-            (0, 1): CTransition(2.25e6, 1.),
-            (1, 0): CTransition(2.75e6, 1.),
-            (0, 2): CTransition(2.50e6, 1.),
-            (2, 0): CTransition(2.25e6, 1.),
-            (1, 2): CTransition(2.75e6, 1.),
-            (2, 1): CTransition(2.25e6, 1.),
+            (0, 1): CTransition(2.25e3, 1.),
+            (1, 0): CTransition(2.25e3, 1.),
+            (0, 2): CTransition(2.50e3, 1.),
+            (2, 0): CTransition(2.50e3, 1.),
+            (1, 2): CTransition(2.75e3, 1.),
+            (2, 1): CTransition(2.75e3, 1.),
         }
     )
 
     params = ADict(
         central_freq=molecule.energies[2],
-        comb_size=200,
+        comb_size=500,
         omega_M1=3,
         omega_M2=7,
         gamma=5e-4,
@@ -186,57 +186,43 @@ if __name__ == '__main__':
 
     import time
     start = time.time()
-    frequency = nonuniform_frequency_range_3(molecule, params)[0]
-    params['freq'] = frequency
 
-    print params.freq.size
-
-    print time.time() - start
-
-    field_frequency1 = nonuniform_frequency_range_3(molecule, params)[1]
-    field_frequency2 = nonuniform_frequency_range_3(molecule, params)[2]
-    omega1 = field_frequency1[:, np.newaxis]
-    omega2 = field_frequency2[:, np.newaxis]
-    comb_omega = (params.delta_freq * np.arange(-params.comb_size, params.comb_size))[np.newaxis, :]
-    field1 = (params.gamma / ((omega1 - params.central_freq - 2*(params.omega_M1 - comb_omega)) ** 2 + params.gamma ** 2)).sum(axis=1)
-    field2 = (params.gamma / ((omega2 - params.central_freq - 2*(params.omega_M2 - comb_omega)) ** 2 + params.gamma ** 2)).sum(axis=1)
+    def get_frequencies(molecule, params):
+        params['frequency'] = nonuniform_frequency_range_3(molecule, params)[0]
+        params['field_frequency1'] = nonuniform_frequency_range_3(molecule, params)[1]
+        params['field_frequency2'] = nonuniform_frequency_range_3(molecule, params)[2]
+        omega1 = params.field_frequency1[:, np.newaxis]
+        omega2 = params.field_frequency2[:, np.newaxis]
+        comb_omega = (params.delta_freq * np.arange(-params.comb_size, params.comb_size))[np.newaxis, :]
+        params['field1'] = (params.gamma / ((omega1 - params.central_freq - 2*(params.omega_M1 - comb_omega)) ** 2 + params.gamma ** 2)).sum(axis=1)
+        params['field2'] = (params.gamma / ((omega2 - params.central_freq - 2*(params.omega_M2 - comb_omega)) ** 2 + params.gamma ** 2)).sum(axis=1)
 
 
-    def plot_all_modulations(mol, axes, clr):
+    def plot_all_modulations(molecule, params, axes, clr):
         all_modulations = list(
             product(*(2 * [[params.omega_M1, params.omega_M2]]))
         )
 
-        pol2 = np.zeros((4, params.freq.size), dtype=np.complex)
+        pol2 = np.zeros((4, params.frequency.size), dtype=np.complex)
         for i, modulations in enumerate(all_modulations):
             if (i == 1) or (i == 2):
                 print i, modulations
-                pol2[i] = get_polarization2(mol, params, modulations)
+                pol2[i] = get_polarization2(molecule, params, modulations)
 
         pol2 /= np.abs(pol2).max()
         pol2_sum_field_free = pol2[1] + pol2[2]
         pol2_sum_field_free /= np.abs(pol2_sum_field_free).max()
-        comb_plot(frequency, pol2_sum_field_free.real, axes, clr, linewidth=2.)
-        # axes.plot(frequency, pol2_sum_field_free.real, clr, linewidth=2.)
+        comb_plot(params.frequency, pol2_sum_field_free.real, axes, clr, linewidth=2.)
         return pol2_sum_field_free
 
-    # fig, axes = plt.subplots(nrows=1, ncols=1)
-    # molecule.energies = np.cumsum([0, 2.01e5, 2.01e5])
-    # plot_all_modulations(molecule, axes, 'k')
-    # molecule.energies = np.cumsum([0, 2.009e5, 2.008e5])
-    # plot_all_modulations(molecule, axes, 'r')
-    # molecule.energies = np.cumsum([0, 2.007e5, 2.007e5])
-    # plot_all_modulations(molecule, axes, 'b')
-    # comb_plot(field_frequency1, field1/field1.max(), axes, 'r', alpha=0.5)
-    # comb_plot(field_frequency2, field2/field2.max(), axes, 'b', alpha=0.5)
-    # plt.show()
 
     def plot_no_modulations(ax1, clr):
+        print params.delta_freq
         pol2 = get_polarization2(molecule, params, [params.omega_M2, params.omega_M1])
-        ax1.plot(frequency / delta_freq, np.abs(pol2), color=clr, linewidth=2.)
-        ax1.set_ylabel('$P^{(3)}(\\omega)$', color='k')
+        comb_plot(params.frequency, pol2.real, ax1, color=clr, linewidth=2.)
+        ax1.set_ylabel('$P^{(2)}(\\omega)$', color='k')
         ax1.tick_params('y', colors='k')
-        ax1.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
+        ax1.set_xlabel("$\\omega_1 + \\omega_2 + \\Delta \\omega$ (in GHz)")
         print time.time() - start
 
     def plot_spacing_dependence():
@@ -247,16 +233,21 @@ if __name__ == '__main__':
         for i, delta in enumerate(list_delta_freq):
             axes[i/3, i % 3].set_title('$\Delta \omega = $' + str(list_delta_freq[i]))
             params.delta_freq = delta
-            # params['freq'] = nonuniform_frequency_range_3(molecule, params)[0]
+            get_frequencies(molecule, params)
             for j, energy in enumerate(mol_energies):
                 molecule.energies = energy
-                plot_all_modulations(molecule, axes[i/3, i % 3], colors[j])
+                plot_all_modulations(molecule, params, axes[i/3, i % 3], colors[j])
 
     plot_spacing_dependence()
 
-    def plot_L_spectra_NL_pol2(molecule, ax, clr):
-        spectra = linear_spectra(molecule, frequency)
-        ax.plot(frequency, spectra, clr, linewidth=2.)
+    # fig, axes = plt.subplots(nrows=1, ncols=1)
+    # get_frequencies(molecule, params)
+    # plot_all_modulations(molecule, params, axes, 'r')
+
+
+    def plot_L_spectra_NL_pol2(molecule, params, ax, clr):
+        spectra = linear_spectra(molecule, params.frequency)
+        ax.plot(params.frequency, spectra, clr, linewidth=2.)
         # pol3 = get_polarization3(molecule, params, [params.omega_M2, params.omega_M2, params.omega_M1])
         # ax.plot(frequency, pol3.real, clr, linewidth=1., alpha=0.6)
 
@@ -287,7 +278,8 @@ if __name__ == '__main__':
     #
     #     )
 
-    frequency = np.linspace(0e5, 4.5e5, 5000)
-    calculate_chi2(molecule, frequency, frequency)
+    # frequency = np.linspace(0e5, 4.5e5, 5000)
+    # calculate_chi2(molecule, frequency, frequency)
+    plt.show()
 
 
