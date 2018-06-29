@@ -30,34 +30,25 @@ class RhoPropagate:
         except AttributeError:
             raise AttributeError("Line-widths not specified")
 
-        self.omega_gridDIM = 50000
-        self.omega_amplitude = int(2 *self.delta_omega*self.N_comb)
-        # BF_size = self.omega_gridDIM/5
-        self.k = np.arange(self.omega_gridDIM)
-        self.d_omega = 2. * self.omega_amplitude / self.omega_gridDIM
-        self.omega = (self.k - self.omega_gridDIM / 2) * self.d_omega
-
-        minus = (-1) ** self.k
-        self.t = (self.k - self.omega_gridDIM / 2) * (np.pi / self.omega_amplitude)
-        self.dt = 2.*np.pi/self.d_omega
-
-        print self.dt
-        print self.d_omega
-        # print omega.min(), omega.max()
-        n = np.linspace(-self.N_comb, self.N_comb-1, 2 * self.N_comb)[np.newaxis, :]
-        field_omega1 = (self.tau / ((self.omega[:, np.newaxis] - self.omega_M1 - n * self.delta_omega) ** 2 + self.tau ** 2)).sum(axis=1)
-        # BF = np.zeros((2*self.omega_amplitude,))
-        # BF[2*BF_size:3*BF_size] = np.blackman(BF_size)
-        # print BF.size
-        # field_omega1 *= np.blackman(field_omega1.size)
-        field_omega2 = (self.tau / ((self.omega[:, np.newaxis] - self.omega_M2 - n * self.delta_omega) ** 2 + self.tau ** 2)).sum(axis=1)
-        # field_omega2 *= np.blackman(field_omega2.size)
-
-        field_t1 = (self.d_omega * minus * fftpack.fft(minus * field_omega1, overwrite_x=True))
-        field_t2 = (self.d_omega * minus * fftpack.fft(minus * field_omega2, overwrite_x=True))
+        # self.omega_gridDIM = 50000
+        # self.omega_amplitude = int(2 * self.delta_omega*self.N_comb)
+        # self.k = np.arange(self.omega_gridDIM)
+        # self.d_omega = 2. * self.omega_amplitude / self.omega_gridDIM
+        # self.omega = (self.k - self.omega_gridDIM / 2) * self.d_omega
         #
-        self.field_t = field_t1 + field_t2
-        # self.field_t = np.exp(-self.t**2 / .04)*np.sinc(20.*self.t)
+        # minus = (-1) ** self.k
+        # self.t = (self.k - self.omega_gridDIM / 2) * (np.pi / self.omega_amplitude)
+        # self.dt = 2.*np.pi/self.d_omega
+        #
+        # print self.dt
+        # print self.d_omega
+        # field_omega1 = (self.tau / ((self.omega[:, np.newaxis] - self.omega_M1 - n * self.delta_omega) ** 2 + self.tau ** 2)).sum(axis=1)
+        # field_omega2 = (self.tau / ((self.omega[:, np.newaxis] - self.omega_M2 - n * self.delta_omega) ** 2 + self.tau ** 2)).sum(axis=1)
+        #
+        # field_t1 = (self.d_omega * minus * fftpack.fft(minus * field_omega1, overwrite_x=True))
+        # field_t2 = (self.d_omega * minus * fftpack.fft(minus * field_omega2, overwrite_x=True))
+        # self.field_t = field_t1 + field_t2
+        #
         # plt.figure()
         # plt.subplot(211)
         # plt.plot(self.omega, field_omega1)
@@ -65,68 +56,66 @@ class RhoPropagate:
         # plt.subplot(212)
         # self.field_t /= self.field_t.max()
         # plt.plot(self.t, self.field_t)
-        #
-        time = np.linspace(self.t.min(), self.t.max(), 500000)[:, np.newaxis]
-        exact_FT_1 = np.pi * np.exp(-self.tau*np.abs(time) - 1j*(self.omega_M1 + self.delta_omega*n)*time)
+
+        self.timeDIM = 500000
+        self.timeAMP = 150.
+        self.dt = self.timeAMP * 2. / self.timeDIM
+        n = np.linspace(-self.N_comb, self.N_comb-1, 2 * self.N_comb)[np.newaxis, :]
+
+        self.time = np.linspace(-self.timeAMP, self.timeAMP, self.timeDIM)[:, np.newaxis]
+        exact_FT_1 = np.pi * np.exp(-self.tau*np.abs(self.time) - 1j*(self.omega_M1 + self.delta_omega*n)*self.time)
         exact_FT_1 = exact_FT_1.sum(axis=1)
 
-        exact_FT_2 = np.pi * np.exp(-self.tau * np.abs(time) - 1j * (self.omega_M2 + self.delta_omega * n) * time)
+        exact_FT_2 = np.pi * np.exp(-self.tau * np.abs(self.time) - 1j * (self.omega_M2 + self.delta_omega * n) * self.time)
         exact_FT_2 = exact_FT_2.sum(axis=1)
 
         exact_FT = exact_FT_1 + exact_FT_2
         exact_FT /= exact_FT.max()
-        # plt.plot(time.sum(axis=1), exact_FT)
-        #
-        # plt.show()
+
+        plt.figure()
+        plt.plot(self.time, exact_FT_1)
+        plt.plot(self.time, exact_FT_2)
+
         self.H0 = np.diag(self.energies)
         self.H = self.H0.copy()
         self.D_matrix = np.zeros_like(self.rho_0, dtype=np.complex)
         self.rho = self.rho_0.copy()
         self.Lfunc = np.zeros_like(self.rho, dtype=np.complex)
+        self.L_update = np.zeros_like(self.rho, dtype=np.complex)
+        self.rho_t = np.empty((3, self.timeDIM))
+        self.mu_t = np.empty((self.timeDIM,))
+        self.field_t = exact_FT * 1000
 
-        self.field_t = exact_FT
+    def L_operator(self, Qmat, indx):
+        self.Lfunc[:] = 0.
+        energy = self.energies
+        gamma = self.gamma
+        mu = self.mu
+        for m in range(energy.size):
+            for n in range(energy.size):
+                if m == n:
+                    for i in range(energy.size):
+                        self.Lfunc[i, i] += gamma[i, m] * Qmat[i, i]
+                self.Lfunc[m, n] += -1j*(energy[m] - energy[n]) * Qmat[m, n]
+                for j in range(energy.size):
+                    self.Lfunc[m, n] -= 0.5*(gamma[n, j] + gamma[m, j]) * Qmat[m, n]
+                    self.Lfunc[m, n] += 1j * self.field_t[indx] * (mu[m, j] * Qmat[j, n] - Qmat[m, j] * mu[j, n])
 
-    def dissipation(self, Qmat):
-        """
-        Calculates effect of environment on the system
-        :return: self.D_matrix: value of environment effects matrix with updated rho
-        """
-
-        self.D_matrix = np.zeros_like(self.D_matrix, dtype=np.complex)
-        for i in range(self.energies.size):
-            for j in range(self.energies.size):
-                self.D_matrix[j, j] += Qmat[i, i]
-                for k in range(self.energies.size):
-                    self.D_matrix[k, i] -= 0.5*Qmat[k, i]
-                    self.D_matrix[i, k] -= 0.5*Qmat[i, k]
-                self.D_matrix *= self.gamma[i, j]
-        return self.D_matrix
-
-    def L_operator(self, Qmat):
-        print np.trace(-1j*(self.H.dot(Qmat) - Qmat.dot(self.H)) + self.dissipation(Qmat))
-        return -1j*(self.H.dot(Qmat) - Qmat.dot(self.H)) + self.dissipation(Qmat)
+        print "Lfunc trace" + str(np.trace(self.Lfunc))
+        return self.Lfunc
 
     def propagate(self):
-        self.rho_11 = np.empty((self.omega_gridDIM,))
-        self.rho_22 = np.empty((self.omega_gridDIM,))
-        self.rho_33 = np.empty((self.omega_gridDIM,))
-        self.mu_t = np.empty((self.omega_gridDIM,))
 
-        self.rho = self.rho_0.copy()
-
-        for i in range(self.omega_gridDIM):
-            self.H = self.H0 - 1e-6*self.field_t[i] * self.mu
-            self.Lfunc = self.rho.copy()
+        for i in range(self.timeDIM):
+            # print str(i) + "  rho trace  " + str(np.trace(self.L_update))
+            self.L_update = self.rho.copy()
             for j in range(1, 5):
-                self.Lfunc = self.L_operator(self.Lfunc).copy()
-                self.Lfunc *= self.dt/j
-                self.rho += self.Lfunc
-            # print np.trace(self.rho)
-
-            self.rho_11[i] = self.rho[0, 0].real
-            self.rho_22[i] = self.rho[1, 1].real
-            self.rho_33[i] = self.rho[2, 2].real
-            self.mu_t[i] = np.trace(self.rho.T.dot(self.mu)).real
+                self.L_update += self.L_operator(self.L_update, i) * self.dt / j
+            self.rho += self.L_update
+            self.rho_t[0, i] = self.rho[0, 0].real
+            self.rho_t[1, i] = self.rho[1, 1].real
+            self.rho_t[2, i] = self.rho[2, 2].real
+            self.mu_t[i] = np.trace(self.rho.dot(self.mu)).real
         print self.rho
 
 
@@ -142,7 +131,7 @@ if __name__ == '__main__':
     qsys_params = dict(
         energies=energies,
         omega_M1=7,
-        omega_M2=3,
+        omega_M2=1,
         delta_omega=10,
         N_comb=10,
         rho_0=rho_0,
@@ -152,18 +141,17 @@ if __name__ == '__main__':
     )
 
     molecule = RhoPropagate(**qsys_params)
-    # molecule.propagate()
-    #
-    # plt.figure()
+    molecule.propagate()
 
-    #
-    # plt.subplot(312)
-    # plt.plot(molecule.t, molecule.rho_11, 'r')
-    # plt.plot(molecule.t, molecule.rho_22, 'b')
-    # plt.plot(molecule.t, molecule.rho_33, 'k')
-    #
-    # plt.subplot(313)
-    # plt.plot(molecule.t, molecule.mu_t, 'k')
+    plt.figure()
 
+    plt.subplot(312)
+    plt.plot(molecule.time, molecule.rho_t[0], 'r')
+    plt.plot(molecule.time, molecule.rho_t[1], 'b')
+    plt.plot(molecule.time, molecule.rho_t[2], 'k')
+
+    plt.subplot(313)
+    plt.plot(molecule.time, molecule.mu_t, 'k')
 
     plt.show()
+
