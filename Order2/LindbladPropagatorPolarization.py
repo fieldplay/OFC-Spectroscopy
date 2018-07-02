@@ -91,31 +91,34 @@ class RhoPropagate:
         energy = self.energies
         gamma = self.gamma
         mu = self.mu
+
         for m in range(energy.size):
             for n in range(energy.size):
-                if m == n:
-                    for i in range(energy.size):
-                        self.Lfunc[i, i] += gamma[i, m] * Qmat[i, i]
+
                 self.Lfunc[m, n] += -1j*(energy[m] - energy[n]) * Qmat[m, n]
                 for j in range(energy.size):
-                    self.Lfunc[m, n] -= 0.5*(gamma[n, j] + gamma[m, j]) * Qmat[m, n]
+                    if m == n:
+                        self.Lfunc[m, n] += gamma[j, m] * Qmat[j, j]
+                    self.Lfunc[m, n] -= 0.5 * (gamma[n, j] + gamma[m, j]) * Qmat[m, n]
                     self.Lfunc[m, n] += 1j * self.field_t[indx] * (mu[m, j] * Qmat[j, n] - Qmat[m, j] * mu[j, n])
 
-        print "Lfunc trace" + str(np.trace(self.Lfunc))
+        # print "Lfunc trace" + str(np.trace(self.Lfunc))
         return self.Lfunc
 
     def propagate(self):
 
-        for i in range(self.timeDIM):
-            # print str(i) + "  rho trace  " + str(np.trace(self.L_update))
+        # for i in range(self.timeDIM):
+        for i in range(300000):
+            print i
             self.L_update = self.rho.copy()
-            for j in range(1, 5):
+            for j in range(1, 8):
                 self.L_update += self.L_operator(self.L_update, i) * self.dt / j
             self.rho += self.L_update
-            self.rho_t[0, i] = self.rho[0, 0].real
-            self.rho_t[1, i] = self.rho[1, 1].real
-            self.rho_t[2, i] = self.rho[2, 2].real
+            self.rho /= np.trace(self.rho)
+
+            self.rho_t[:, i] = np.diag(self.rho).real
             self.mu_t[i] = np.trace(self.rho.dot(self.mu)).real
+
         print self.rho
 
 
