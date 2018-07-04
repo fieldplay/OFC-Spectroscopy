@@ -127,7 +127,7 @@ if __name__ == '__main__':
     rho_0 = np.zeros((3, 3), dtype=np.complex)
     rho_0[0, 0] = 1.
     mu = np.ones_like(rho_0)
-    mu -= np.diag(np.ones((3,)))
+    np.fill_diagonal(mu, 0j)
     gamma = np.asarray([[0.0, 0.2, 0.1], [0.2, 0.0, 0.15], [0.1, 0.15, 0.0]])*1e-1
     energies = np.array((0., 512, 1024))
 
