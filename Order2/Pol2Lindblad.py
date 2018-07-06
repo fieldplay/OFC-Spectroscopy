@@ -73,8 +73,9 @@ if __name__ == '__main__':
     molecule = RhoPropagate(**ThreeLevel)
     molecule.propagate()
 
+    np.set_printoptions(precision=4)
     print molecule.rho
-    fig, axes = plt.subplots(nrows=1, ncols=1)
-    axes.plot(molecule.time, molecule.field_t)
-    plt.show()
+    # fig, axes = plt.subplots(nrows=1, ncols=1)
+    # axes.plot(molecule.time, molecule.field_t)
+    # plt.show()
 
