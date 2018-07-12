@@ -31,19 +31,23 @@ class RhoPropagate:
         field_M2 = np.exp(-self.tau * np.abs(self.time) - 1j * (self.omega_M2 + self.delta_omega * n) * self.time)
         field_M1 = field_M1.sum(axis=1)
         field_M2 = field_M2.sum(axis=1)
-        self.field_t = field_M1 + field_M2
-        self.field_t /= self.field_t.max()
+        # self.field_t = field_M1 + field_M2
+        # self.field_t /= self.field_t.max()
+        self.field_t = 2.*np.exp(-(self.time**2)/(2*(45.**2)))*np.cos(.5*self.time)
 
         self.H0 = np.diag(self.energies)
         self.D_matrix = np.zeros_like(self.rho_0, dtype=np.complex)
-        self.rho = np.zeros_like(self.rho_0)
+        self.rho = np.zeros_like(self.rho_0, dtype=np.complex)
         self.Lfunc = np.zeros_like(self.rho, dtype=np.complex)
         self.L_update = np.zeros_like(self.rho, dtype=np.complex)
-        self.rho_t = np.empty((3, self.timeDIM))
         self.mu_t = np.empty((self.timeDIM,))
+        self.dyn_rho = np.zeros((3, self.timeDIM))
+        self.temp = np.empty_like(self.field_t, dtype=np.complex)
 
     def propagate(self):
-        Propagate(self.rho, self.field_t, self.gamma, self.mu, self.rho_0, self.energies, self.timeDIM, self.dt)
+        Propagate(
+            self.rho, self.dyn_rho, self.field_t, self.gamma, self.mu, self.rho_0, self.energies, self.timeDIM, self.dt
+            , self.temp)
         return self.rho
 
 if __name__ == '__main__':
@@ -52,7 +56,7 @@ if __name__ == '__main__':
     rho_0[0, 0] = 1. + 0j
     mu = np.ones_like(rho_0)
     np.fill_diagonal(mu, 0j)
-    gamma = np.random.uniform(0.1, 0.3, (3, 3))*1e-1
+    gamma = np.asarray([[0.0, 0.2, 0.1], [0.2, 0.0, 0.15], [0.1, 0.15, 0.0]])*1e-1
     np.fill_diagonal(gamma, 0.)
     energies = np.array((0., 512, 1024))
 
@@ -74,8 +78,15 @@ if __name__ == '__main__':
     molecule.propagate()
 
     np.set_printoptions(precision=4)
+    # for i, m in enumerate(molecule.field_t):
+    #     print i, molecule.field_t[i]
+
     print molecule.rho
-    # fig, axes = plt.subplots(nrows=1, ncols=1)
-    # axes.plot(molecule.time, molecule.field_t)
-    # plt.show()
+    fig, axes = plt.subplots(nrows=2, ncols=1)
+    axes[0].plot(molecule.time, molecule.field_t, 'r')
+    axes[0].plot(molecule.time, molecule.temp, 'k')
+    axes[1].plot(molecule.time, molecule.dyn_rho[0].real, 'r*')
+    axes[1].plot(molecule.time, molecule.dyn_rho[1].real, 'b')
+    axes[1].plot(molecule.time, molecule.dyn_rho[2].real, 'k')
+    plt.show()
 

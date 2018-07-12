@@ -20,7 +20,22 @@ void print_complex_mat(cmplx *A)
 	printf("\n\n");
 }
 
-void copy_mat(cmplx *A, cmplx *B)
+void print_double_mat(double *A)
+{
+	int i,j;
+	int nDIM = 3;
+	for(i=0; i<nDIM; i++)
+	{
+		for(j=0; j<nDIM; j++)
+		{
+			printf("%3.3e  ", A[i * nDIM + j]);
+		}
+	    printf("\n");
+	}
+	printf("\n\n");
+}
+
+void copy_mat(const cmplx *A, cmplx *B)
 //----------------------------------------------------//
 // 	        COPIES MATRIX A ----> MATRIX B            //
 //----------------------------------------------------//
@@ -36,7 +51,7 @@ void copy_mat(cmplx *A, cmplx *B)
     }
 }
 
-void add_mat(cmplx *A, cmplx *B)
+void add_mat(const cmplx *A, cmplx *B)
 //----------------------------------------------------//
 // 	        ADDS A to B ----> MATRIX B = A + B        //
 //----------------------------------------------------//
@@ -68,13 +83,48 @@ void scale_mat(cmplx *A, double factor)
     }
 }
 
-void L_operate(cmplx* Qmat, const double field_t, const double* gamma, const cmplx* mu, const double* energies, int nDIM)
+double complex_abs(cmplx z)
+{
+    return sqrt((creal(z)*creal(z) + cimag(z)*cimag(z)));
+}
+
+void complex_trace(cmplx *A)
+{
+    cmplx trace = 0.0 + I * 0.0;
+    int i, j = 0;
+    int nDIM = 3;
+    for(i=0; i<nDIM; i++)
+    {
+        trace += A[i*nDIM + i];
+    }
+    printf("Trace = %3.3e + %3.3eJ  \n", creal(trace), cimag(trace));
+}
+
+double complex_max_element(cmplx *A)
+{
+    double max_el = 0.0;
+    int i, j = 0;
+    int nDIM = 3;
+    for(i=0; i<nDIM; i++)
+    {
+        for(j=0; j<nDIM; j++)
+        {
+            if(complex_abs(A[i * nDIM + j]) > max_el)
+            {
+                max_el = complex_abs(A[i * nDIM + j]);
+            }
+        }
+    }
+    return max_el;
+}
+
+void L_operate(cmplx* Qmat, const cmplx field_t, const double* gamma, const cmplx* mu, const double* energies, int nDIM)
 //----------------------------------------------------//
 // 	    RETURNS Q <-- L[Q] AT A PARTICULAR TIME (t)   //
 //----------------------------------------------------//
 {
     int m, n, k;
-    complex double* Lmat = (complex double*)malloc(nDIM * nDIM * sizeof(complex double));
+    cmplx* Lmat = (cmplx*)calloc(nDIM * nDIM,  sizeof(cmplx));
     for(m = 0; m < nDIM; m++)
         {
         for(n = 0; n < nDIM; n++)
@@ -102,30 +152,36 @@ void L_operate(cmplx* Qmat, const double field_t, const double* gamma, const cmp
             }
         }
 
-    print_complex_mat(Qmat);
 
 }
 
 
-void Propagate(cmplx* out, const cmplx* field, const double* gamma, const cmplx* mu, cmplx* rho_0,
-     const double* energies, const int timeDIM, const double dt, const int nDIM)
+void Propagate(cmplx* out, cmplx* dyn_rho, const cmplx* field, const double* gamma, const cmplx* mu, const cmplx* rho_0,
+     const double* energies, const int timeDIM, const double dt, const int nDIM, cmplx* temp)
 //------------------------------------------------------------//
 //    GETTING rho(T) FROM rho(0) USING PROPAGATE FUNCTION     //
 //------------------------------------------------------------//
 {
-    int i, j, m, n;
-
-    complex double* L_func = (complex double*)malloc(nDIM * nDIM * sizeof(complex double));
+    int i, j, k;
+    cmplx* L_func = (cmplx*)calloc(nDIM * nDIM, sizeof(cmplx));
     copy_mat(rho_0, L_func);
     copy_mat(rho_0, out);
-
-    for(i=0; i<100; i++)
+    for(i=0; i<timeDIM; i++)
     {
-        for(j=0; j<10; j++)
+        j=0;
+        do
         {
-            L_operate(L_func, field[timeDIM/2], gamma, mu, energies, nDIM);
+            L_operate(L_func, field[i], gamma, mu, energies, nDIM);
             scale_mat(L_func, dt/(j+1));
             add_mat(L_func, out);
+            j+=1;
+        }while(complex_max_element(L_func) > 1.0E-12);
+
+        for(k=0; k<nDIM; k++)
+        {
+            dyn_rho[k*nDIM + i] = out[k*nDIM + k];
         }
+        copy_mat(out, L_func);
+        temp[i] = field[i];
     }
 }
