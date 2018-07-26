@@ -108,7 +108,7 @@ class RhoPropagate:
     def propagate(self):
 
         # for i in range(self.timeDIM):
-        for i in range(300000):
+        for i in range(30000):
             print i
             self.L_update = self.rho.copy()
             for j in range(1, 8):

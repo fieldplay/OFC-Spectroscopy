@@ -35,23 +35,24 @@ except OSError:
 lib.Propagate.argtypes = (
     POINTER(c_complex),     # cmplx* out, , Array to store L[Q]
     POINTER(c_complex),     # cmplx* dyn_rho,
+    POINTER(c_complex),     # cmplx* dyn_coh,
     POINTER(c_complex),     # cmplx* field, E(t)
     POINTER(c_double),      # double* gamma matrix
-    POINTER(c_complex),     # double* mu matrix
-    POINTER(c_complex),     # double* rho_0 matrix
+    POINTER(c_complex),     # cmplx* mu matrix
+    POINTER(c_complex),     # cmplx* rho_0 matrix
     POINTER(c_double),      # double* energies
     c_int,                  # const int timeDIM,
     c_double,               # const double dt,
     c_int,                  # const int nDIM,
-    POINTER(c_complex),     # cmplx* field
 )
 lib.Propagate.restype = None
 
 
-def Propagate(out, dyn_rho, field_t, gamma, mu, rho_0, energies, timeDIM, dt, temp):
+def Propagate(out, dyn_rho, dyn_coh, field_t, gamma, mu, rho_0, energies, timeDIM, dt):
     return lib.Propagate(
         out.ctypes.data_as(POINTER(c_complex)),
         dyn_rho.ctypes.data_as(POINTER(c_complex)),
+        dyn_coh.ctypes.data_as(POINTER(c_complex)),
         field_t.ctypes.data_as(POINTER(c_complex)),
         gamma.ctypes.data_as(POINTER(c_double)),
         mu.ctypes.data_as(POINTER(c_complex)),
@@ -60,5 +61,4 @@ def Propagate(out, dyn_rho, field_t, gamma, mu, rho_0, energies, timeDIM, dt, te
         timeDIM,
         dt,
         len(energies),
-        temp.ctypes.data_as(POINTER(c_complex))
     )
