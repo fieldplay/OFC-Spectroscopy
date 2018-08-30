@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
-from CalculatePolarization3_full import comb_plot
+from CalculatePolarization2_full import comb_plot
 
 with open("pol3_matrix.pickle", "rb") as f:
     data = pickle.load(f)
@@ -27,8 +27,7 @@ def plot_pol3():
 # plot_pol3()
 
 rows, cols = pol3_mat.shape
-print rows, cols
-print
+print(rows, cols)
 sigma = 0.15
 x = np.linspace(0., 1., rows)
 
@@ -68,11 +67,9 @@ for i in range(3):
     det_noise[i] = np.abs(np.asarray([np.vdot(pol3_mat[:, j], het_field) for j in range(3)]))
     det_noise[i] /= det_noise[i][i]
 
-print det
-print
-print det_noise
-print
-print 1./np.linalg.det(det)
-print 1./np.linalg.det(det_noise)
+print(det)
+print(det_noise)
+print(1./np.linalg.det(det))
+print(1./np.linalg.det(det_noise))
 
 plt.show()

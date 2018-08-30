@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from types import MethodType, FunctionType
-from scipy import fftpack
 
 
 class RhoPropagate:
@@ -109,7 +108,7 @@ class RhoPropagate:
 
         # for i in range(self.timeDIM):
         for i in range(30000):
-            print i
+            print(i)
             self.L_update = self.rho.copy()
             for j in range(1, 8):
                 self.L_update += self.L_operator(self.L_update, i) * self.dt / j
@@ -119,7 +118,7 @@ class RhoPropagate:
             self.rho_t[:, i] = np.diag(self.rho).real
             self.mu_t[i] = np.trace(self.rho.dot(self.mu)).real
 
-        print self.rho
+        print(self.rho)
 
 
 if __name__ == '__main__':

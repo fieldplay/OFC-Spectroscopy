@@ -73,7 +73,7 @@ if __name__ == '__main__':
     # for i, m in enumerate(molecule.field_t):
     #     print i, molecule.field_t[i]
 
-    print molecule.rho
+    print(molecule.rho)
     fig, axes = plt.subplots(nrows=3, ncols=1, sharex=True)
     axes[0].plot(molecule.time, molecule.field_t, 'r')
 

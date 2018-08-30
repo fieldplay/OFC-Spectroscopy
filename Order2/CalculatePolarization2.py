@@ -71,7 +71,7 @@ def nonuniform_frequency_range_3(params, freq_offset=None):
         np.round(freq_offset, decimals, out=freq_offset)
 
         freq_offset = np.unique(freq_offset)
-        print freq_offset
+        print(freq_offset)
 
     # def points_for_lorentzian(mean):
     #     # L = np.array([0, 0.02, 0.05, 0.1, 0.2, 0.4, 0.5, 1.])
@@ -121,7 +121,7 @@ def get_polarization3(molecule, params, modulations):
 
             # reset the polarization because C-code performs "+="
             polarization_mn[:] = 0.
-            print modulations, m, n
+            print(modulations, m, n)
             pol2_total(
                 polarization_mn, params,
                 modulations[0], modulations[1],
@@ -200,9 +200,9 @@ if __name__ == '__main__':
     # frequency = nonuniform_frequency_range_3(params)
     frequency = uniform_frequency_range(params)
     params['freq'] = frequency
-    print params.freq.size
+    print(params.freq.size)
 
-    print time.time() - start
+    print(time.time() - start)
 
     omega = frequency[:, np.newaxis]
     gaussian = np.exp(-(np.arange(-params.comb_size, params.comb_size)) ** 2 / (2.*params.width_g ** 2))[np.newaxis, :]
@@ -216,7 +216,7 @@ if __name__ == '__main__':
 
     pol3 = np.zeros((4, params.freq.size), dtype=np.complex)
     for i, modulations in enumerate(all_modulations):
-        print i, modulations
+        print(i, modulations)
         pol3[i] = get_polarization3(molecule, params, modulations).real
 
     pol3_sum = pol3.sum(axis=0)
@@ -237,5 +237,5 @@ if __name__ == '__main__':
             ax2.tick_params('y', colors='b')
 
     fig.subplots_adjust(wspace=0.30, hspace=0.00)
-    print time.time() - start
+    print(time.time() - start)
     plt.show()
