@@ -106,7 +106,6 @@ void pol2(
     pol2_XY(out, freq, freq_size, delta_freq, gamma, M_field_p, M_field_q, width_g, N_terms, wg_2, wg_1, sign);
     pol2_XZ(out, freq, freq_size, delta_freq, gamma, M_field_p, M_field_q, width_g, N_terms, wg_2, wg_1, sign);
     pol2_YZstar(out, freq, freq_size, delta_freq, gamma, M_field_p, M_field_q, width_g, N_terms, wg_2, wg_1, sign);
-
 }
 
 
