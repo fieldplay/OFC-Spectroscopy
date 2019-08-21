@@ -51,6 +51,10 @@ def nonuniform_frequency_range_3(molecule, params):
     N_res = 11
     N_comb = params.comb_size
 
+    freq_points = np.linspace(-N_comb * params.delta_freq, N_comb * params.delta_freq, N_comb + 1)[:,
+                                     np.newaxis]
+    resolution = np.linspace(-0.5 * params.delta_freq, 0.5 * params.delta_freq, N_res)
+
     frequency_12 = w0_pol3_12 + np.linspace(-N_comb * params.delta_freq, N_comb * params.delta_freq, N_comb + 1)[:,
                                      np.newaxis] + np.linspace(-0.5 * params.delta_freq, 0.5 * params.delta_freq, N_res)
     frequency_21 = w0_pol3_21 + np.linspace(-N_comb * params.delta_freq, N_comb * params.delta_freq, N_comb + 1)[:,
@@ -67,7 +71,7 @@ def nonuniform_frequency_range_3(molecule, params):
     return np.ascontiguousarray(freq_pol3), np.ascontiguousarray(freq_field1), np.ascontiguousarray(freq_field2)
 
 
-def get_polarization3(molecule, params, modulations):
+def get_polarization3(molecule, params):
     """
     Return the third order polarization for a specified molecule 
     :param molecule: an instance of ADict describing molecule 
@@ -83,34 +87,36 @@ def get_polarization3(molecule, params, modulations):
     polarization = np.zeros(params.freq.size, dtype=np.complex)
     polarization_mnv = np.zeros_like(polarization)
 
-    for m, n, v in permutations(range(1, len(energy)), 3):
-        try:
-            # calculate the product of the transition dipole if they are not zeros
-            mu_product = transition[(0, m)].mu * transition[(m, n)].mu * \
-                         transition[(n, v)].mu * transition[(v, 0)].mu
+    for i, modulations in enumerate(list(product(*(3 * [[params.omega_M1, params.omega_M2]])))):
+        for m, n, v in permutations(range(1, len(energy)), 3):
+            try:
+                # calculate the product of the transition dipole if they are not zeros
+                mu_product = transition[(0, m)].mu * transition[(m, n)].mu * \
+                             transition[(n, v)].mu * transition[(v, 0)].mu
 
-            # reset the polarization because C-code performs "+="
-            polarization_mnv[:] = 0.
-            print(modulations, m, n, v)
-            pol3_total(
-                polarization_mnv, params,
-                modulations[0], modulations[1], modulations[2],
-                energy[n] - energy[v] + 1j * transition[(n, v)].g,
-                energy[m] - energy[v] + 1j * transition[(m, v)].g,
-                energy[v] - energy[0] + 1j * transition[(v, 0)].g,
-                energy[n] - energy[0] + 1j * transition[(n, 0)].g,
-                energy[m] - energy[0] + 1j * transition[(m, 0)].g,
-                energy[m] - energy[n] + 1j * transition[(m, n)].g,
-                energy[n] - energy[m] + 1j * transition[(n, m)].g,
-                energy[v] - energy[n] + 1j * transition[(v, n)].g,
-                energy[v] - energy[m] + 1j * transition[(v, m)].g,
+                # reset the polarization because C-code performs "+="
+                polarization_mnv[:] = 0.
+                print(modulations, m, n, v)
 
-            )
-            polarization_mnv *= mu_product
-            polarization += polarization_mnv
-        except KeyError:
-            # Not allowed transition, this diagram is not calculated
-            pass
+                pol3_total(
+                    polarization_mnv, params,
+                    modulations[0], modulations[1], modulations[2],
+                    energy[n] - energy[v] - 1j * transition[(n, v)].g,
+                    energy[m] - energy[v] - 1j * transition[(m, v)].g,
+                    energy[v] - energy[0] - 1j * transition[(v, 0)].g,
+                    energy[n] - energy[0] - 1j * transition[(n, 0)].g,
+                    energy[m] - energy[0] - 1j * transition[(m, 0)].g,
+                    energy[m] - energy[n] - 1j * transition[(m, n)].g,
+                    energy[n] - energy[m] - 1j * transition[(n, m)].g,
+                    energy[v] - energy[n] - 1j * transition[(v, n)].g,
+                    energy[v] - energy[m] - 1j * transition[(v, m)].g,
+
+                )
+                polarization_mnv *= mu_product
+                polarization += polarization_mnv
+            except KeyError:
+                # Not allowed transition, this diagram is not calculated
+                pass
 
     return polarization
 
@@ -160,20 +166,20 @@ if __name__ == '__main__':
 
     # UNIT OF FREQUENCY IS 10 MHz
 
-    delta_freq = 20    # equals 10 MHz
+    freq_unit = 1/(1000 / 0.024188)
 
     # dipole value and line width for each transition
     # population decay rates (Non-zero for relaxation from higher to lower energy)
-    gamma_decay = np.ones((4, 4)) * 1e2  # All population relaxation times equal 1 GHz (1 ns inverse)
+    gamma_decay = np.ones((4, 4)) * 1e-3 * freq_unit  # All population relaxation times equal 1 GHz (1 ns inverse)
     np.fill_diagonal(gamma_decay, 0.0)    # Diagonal elements zero; no decay to self
     gamma_decay = np.tril(gamma_decay)    # Relaxation only to lower energy states
     # dephasing rates (T_ij = T_ji for dephasing)
-    gamma_dephasing = np.ones((4, 4))*1e6     # All electronic dephasing rates are 10 THz (100 fs inverse)
+    gamma_dephasing = np.ones((4, 4)) * 1e1 * freq_unit     # All electronic dephasing rates are 10 THz (100 fs inverse)
     np.fill_diagonal(gamma_dephasing, 0.0)
-    gamma_dephasing[0, 1] = 5.88e4            # All vibrational dephasing rates are 0.59 THz (1.7 ps inverse)
-    gamma_dephasing[1, 0] = 5.88e4
-    gamma_dephasing[2, 3] = 5.88e4
-    gamma_dephasing[3, 2] = 5.88e4
+    gamma_dephasing[0, 1] = 0.59e0 * freq_unit           # All vibrational dephasing rates are 0.59 THz (1.7 ps inverse)
+    gamma_dephasing[1, 0] = 0.59e0 * freq_unit
+    gamma_dephasing[2, 3] = 0.59e0 * freq_unit
+    gamma_dephasing[3, 2] = 0.59e0 * freq_unit
 
     # Net damping rates given by Boyd pg. 156, G_nm = (1/2) * \sum_i (g_decay_ni + g_decay_mi) + g_dephasing_nm
 
@@ -190,32 +196,31 @@ if __name__ == '__main__':
     molecule = ADict(
 
         #  Energy difference of levels (should be multiples of delta_freq)
-        energies=np.cumsum([0, 113, 2844, 113])*1e2,      # Energies are cumsum(113, 2844, 113) in THz
+        energies=np.cumsum([0, 48, 500, 45]) * freq_unit,      # Energies are cumsum(113, 2844, 113) in THz
         # Nile Blue parameters -> 1->2 = 3->4 = 600 cm-1; 1->3 = 15700 cm-1
 
         transitions={
-            (0, 1): CTransition(gamma[0, 1], 1.e0),
-            (1, 0): CTransition(gamma[1, 0], 1.e0),
-            (0, 2): CTransition(gamma[0, 2], 1.e0),
-            (2, 0): CTransition(gamma[2, 0], 1.e0),
-            (0, 3): CTransition(gamma[0, 3], 1.e0),
-            (3, 0): CTransition(gamma[3, 1], 1.e0),
-            (1, 2): CTransition(gamma[1, 2], 1.e0),
-            (2, 1): CTransition(gamma[2, 1], 1.e0),
-            (1, 3): CTransition(gamma[1, 3], 1.e0),
-            (3, 1): CTransition(gamma[3, 1], 1.e0),
-            (2, 3): CTransition(gamma[2, 3], 1.e0),
-            (3, 2): CTransition(gamma[3, 2], 1.e0)
+            (0, 1): CTransition(gamma[0, 1], 2),
+            (1, 0): CTransition(gamma[1, 0], 2),
+            (0, 2): CTransition(gamma[0, 2], 2),
+            (2, 0): CTransition(gamma[2, 0], 2),
+            (0, 3): CTransition(gamma[0, 3], 2),
+            (3, 0): CTransition(gamma[3, 0], 2),
+            (1, 2): CTransition(gamma[1, 2], 2),
+            (2, 1): CTransition(gamma[2, 1], 2),
+            (1, 3): CTransition(gamma[1, 3], 2),
+            (3, 1): CTransition(gamma[3, 1], 2),
+            (2, 3): CTransition(gamma[2, 3], 2),
+            (3, 2): CTransition(gamma[3, 2], 2)
         }
     )
 
     params = ADict(
-        N_frequency=1000,
-        comb_size=1000,
-        omega_M1=7,
-        omega_M2=13,
-        gamma=1e-8,
-        delta_freq=delta_freq,
+        comb_size=100,
+        omega_M1=6e-1 * freq_unit,
+        omega_M2=2e-1 * freq_unit,
+        gamma=1e-12 * freq_unit,
+        delta_freq=1e-0 * freq_unit,
         width_g=6.,
         N_terms=5
     )
@@ -224,8 +229,6 @@ if __name__ == '__main__':
     start = time.time()
     frequency = nonuniform_frequency_range_3(molecule, params)[0]
     params['freq'] = frequency
-
-    print(params.freq.size)
 
     print(time.time() - start)
 
@@ -239,54 +242,48 @@ if __name__ == '__main__':
     field2 = (params.gamma / ((omega2 - params.omega_M2 - comb_omega) ** 2 + params.gamma ** 2)).sum(axis=1)
 
     def plot_all_modulations(axes, clr, mod_num):
-        all_modulations = list(
-            product(*(3 * [[params.omega_M1, params.omega_M2]]))
-        )
-
         pol3 = np.zeros(params.freq.size, dtype=np.complex)
-        for i, modulations in enumerate(all_modulations):
-            if i == 1:
-                # print(i, modulations)
-                pol3 += get_polarization3(molecule, params, modulations)
+        pol3 += get_polarization3(molecule, params)
 
         print(pol3.max(), '\n')
 
         pol3_sum_field_free = pol3
-        comb_plot(frequency / delta_freq, pol3_sum_field_free.real, axes[0], clr, linewidth=1.)
-        comb_plot(frequency / delta_freq, pol3_sum_field_free.imag, axes[1], clr, linewidth=1.)
-        # comb_plot(field_frequency1 / delta_freq, field1, axes, 'y')
-        # comb_plot(field_frequency2 / delta_freq, field2, axes, 'g')
+        comb_plot(frequency / params.delta_freq, -pol3_sum_field_free.real, axes[0], clr, linewidth=1.)
+        comb_plot(frequency / params.delta_freq, -pol3_sum_field_free.imag, axes[1], clr, linewidth=1.)
+        comb_plot(field_frequency1 / params.delta_freq, field1 * pol3_sum_field_free.real.max() / field1.max(), axes[0], 'y', alpha=0.4)
+        comb_plot(field_frequency2 / params.delta_freq, field2 * pol3_sum_field_free.real.max() / field1.max(), axes[0], 'g', alpha=0.4)
+
+        print(field1.size)
         return pol3_sum_field_free
 
-    def plot_no_modulations(ax1, clr):
-        pol3 = get_polarization3(molecule, params, [params.omega_M2, params.omega_M2, params.omega_M1])
-        ax1.plot(frequency / delta_freq, np.abs(pol3), color=clr, linewidth=2.)
-        ax1.set_ylabel('$P^{(3)}(\\omega)$', color='k')
-        ax1.tick_params('y', colors='k')
-        ax1.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
-        print(time.time() - start)
+    # def plot_no_modulations(ax1, clr):
+    #     pol3 = get_polarization3(molecule, params, [params.omega_M2, params.omega_M2, params.omega_M1])
+    #     ax1.plot(frequency / delta_freq, np.abs(pol3), color=clr, linewidth=2.)
+    #     ax1.set_ylabel('$P^{(3)}(\\omega)$', color='k')
+    #     ax1.tick_params('y', colors='k')
+    #     ax1.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
+    #     print(time.time() - start)
 
-    def plot_spacing_dependence():
-        fig, axes = plt.subplots(nrows=2, ncols=3, sharex=True, sharey=True)
-        list_delta_freq = np.linspace(0.1, 0.60, 6).tolist()
-        mol_energies = [np.cumsum([0, 3, 2.01e3, 3]) * delta_freq, np.cumsum([0, 3, 2.01e3, 4]) * delta_freq, np.cumsum([0, 4, 2.01e3, 3]) * delta_freq]
-        colors = ['r', 'b', 'g']
-        for i, delta in enumerate(list_delta_freq):
-            axes[i/3, i % 3].set_title('$\Delta \omega = $' + str(list_delta_freq[i]))
-            params.delta_freq = delta
-            for j, energy in enumerate(mol_energies):
-                molecule.energies = energy
-                plot_no_modulations(axes[i/3, i % 3], colors[j])
+    # def plot_spacing_dependence():
+    #     fig, axes = plt.subplots(nrows=2, ncols=3, sharex=True, sharey=True)
+    #     list_delta_freq = np.linspace(0.1, 0.60, 6).tolist()
+    #     mol_energies = [np.cumsum([0, 3, 2.01e3, 3]) * delta_freq, np.cumsum([0, 3, 2.01e3, 4]) * delta_freq, np.cumsum([0, 4, 2.01e3, 3]) * delta_freq]
+    #     colors = ['r', 'b', 'g']
+    #     for i, delta in enumerate(list_delta_freq):
+    #         axes[i/3, i % 3].set_title('$\Delta \omega = $' + str(list_delta_freq[i]))
+    #         params.delta_freq = delta
+    #         for j, energy in enumerate(mol_energies):
+    #             molecule.energies = energy
+    #             plot_no_modulations(axes[i/3, i % 3], colors[j])
 
     # plot_spacing_dependence()
 
-    def plot_L_spectra_NL_pol3(molecule, ax, clr):
-        frequency = np.linspace(3.5e6 - 10, 3.5e6 + 15, 10000)
-        spectra = linear_spectra(molecule, frequency)
-        ax.plot(frequency, spectra, clr, linewidth=2.)
+    # def plot_L_spectra_NL_pol3(molecule, ax, clr):
+    #     frequency = np.linspace(3.5e6 - 10, 3.5e6 + 15, 10000)
+    #     spectra = linear_spectra(molecule, frequency)
+    #     ax.plot(frequency, spectra, clr, linewidth=2.)
 
-
-    fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True)
+    fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True)
     # fig1, axes1 = plt.subplots(nrows=1, ncols=1)
 
     fig.suptitle("Total $P^{(3)}(\\omega)$ for Nile Blue")
@@ -312,14 +309,12 @@ if __name__ == '__main__':
     # plot_L_spectra_NL_pol3(molecule, axes1, 'r')
     # pol3_matrix[:, 2] = plot_all_modulations(axes, 'r')
 
-    axes[0].set_xlabel('$(\omega - \omega_{central})/ \Delta \omega$', color='k')
+    axes[0].set_xlabel('$(\\omega - \\omega_{central})/ \\Delta \\omega$', color='k')
     axes[0].set_ylabel('Field-free polarizations \n' + '$P^{(3)}(\\omega)$', color='k')
     axes[0].tick_params('y', colors='k')
     print(time.time() - start)
 
     plt.show()
-
-    print(frequency.max()/delta_freq, frequency.min()/delta_freq)
 
     # with open("pol3_matrix.pickle", "wb") as f:
     #     pickle.dump(

@@ -15,7 +15,7 @@ print(__doc__)
 #                                              #
 ################################################
 
-X_gridDIM = 1024*2**1
+X_gridDIM = 10000
 X_amplitude = 4.
 
 k = np.arange(X_gridDIM)
@@ -39,7 +39,7 @@ a = np.random.uniform(0., 0.2 * X_amplitude)
 A = np.random.uniform(-2., 2, (4,))
 phi = np.random.uniform(-np.pi, np.pi, (4,))
 w0 = (10, 50, 90, 130)
-print w0
+print(w0)
 
 X0 = 3.
 # f = 2. * np.exp(- 0.1 * (X/0.5) ** 2)*np.cos(30.*X + np.pi/2.)
@@ -51,12 +51,6 @@ f = sum([A[i] * np.exp(- alpha * np.abs(X)) * np.cos(w0[i]*X + phi[i]) for i in 
 #     [A[i]*(np.exp(1j*b[i])*np.exp(-1j*(P-w[i])*X0)*alpha/(alpha**2 + (P-w[i])**2)
 #            + np.exp(-1j*b[i])*np.exp(-1j*(P+w[i])*X0)*alpha/(alpha**2 + (P+w[i])**2)) for i in range(8)]
 # )
-
-plt.subplot(211)
-plt.title('E(t)')
-plt.plot(X, f, linewidth=2.)
-plt.xlabel('$t$')
-plt.ylabel('$\\exp(-\\alpha |x|)$')
 
 
 #####################################################
@@ -72,31 +66,23 @@ FT_approx1 = dX * minus * fftpack.fft(minus * f, overwrite_x=True)
 P = (k - X_gridDIM / 2) * (np.pi / X_amplitude)
 
 FTI_approx = (1./dX) * minus * fftpack.ifft(minus * FT_approx1, overwrite_x=True)
-print P.max(), P.min()
+print(P.max(), P.min())
 
-plt.subplot(411)
-plt.title('E(t)')
-plt.plot(X, f, linewidth=2.)
-plt.xlabel('$t$')
+fig, axes = plt.subplots(nrows=3, ncols=1)
 
-plt.subplot(412)
-plt.title('F_inv_F_E(t)')
-plt.plot(X, f, 'r.', linewidth=2.)
-plt.plot(X, FTI_approx.real, linewidth=2.)
-plt.xlabel('$t$')
+axes[0].set_title('F_inv_F_E(t)')
+axes[0].plot(X, f, 'r.', linewidth=2.)
+axes[0].plot(X, FTI_approx.real, linewidth=2.)
+axes[0].set_xlabel('$t$')
 
-plt.subplot(413)
-plt.title("E($\\nu$) -- REAL")
-plt.plot(P, FT_approx1.real, 'k-.', label='real approximate', linewidth=2.)
-# plt.plot(P, FT_exact(P, A, w0, phi).real, 'r', label='real exact', linewidth=1.)
-plt.xlim(-800, 800)
-plt.xlabel('$\\nu$')
+axes[1].set_title("E($\\nu$) -- REAL")
+axes[1].plot(P, FT_approx1.real, 'k-.', label='real approximate', linewidth=2.)
+axes[1].set_xlim(-800, 800)
+axes[1].set_xlabel('$\\nu$')
 
-plt.subplot(414)
-plt.title("E($\\nu$) -- IMAGINARY")
-plt.plot(P, FT_approx1.imag, 'k-.', label='imag approximate', linewidth=2.)
-# plt.plot(P, FT_exact(P, A, w0, phi).imag, 'r', label='real exact', linewidth=1.)
-plt.xlim(-400, 400)
-plt.xlabel('$\\nu$')
+axes[2].set_title("E($\\nu$) -- IMAGINARY")
+axes[2].plot(P, FT_approx1.imag, 'k-.', label='imag approximate', linewidth=2.)
+axes[2].set_xlim(-400, 400)
+axes[2].set_xlabel('$\\nu$')
 
 plt.show()

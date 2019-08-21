@@ -27,7 +27,7 @@ def plot_pol3():
 # plot_pol3()
 
 rows, cols = pol3_mat.shape
-print rows, cols
+print(rows, cols)
 print
 sigma = 0.15
 x = np.linspace(0., 1., rows)
@@ -68,11 +68,11 @@ for i in range(3):
     det_noise[i] = np.abs(np.asarray([np.vdot(pol3_mat[:, j], het_field) for j in range(3)]))
     det_noise[i] /= det_noise[i][i]
 
-print det
+print(det)
 print
-print det_noise
+print(det_noise)
 print
-print np.log(1./np.linalg.det(det))
-print np.log(1./np.linalg.det(det_noise))
+print(np.log(1./np.linalg.det(det)))
+print(np.log(1./np.linalg.det(det_noise)))
 
 plt.show()

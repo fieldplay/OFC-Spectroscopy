@@ -2,7 +2,7 @@ __doc__ = """
 Python wrapper for eval_pol3_full.c
 
 Note: You must compile the C shared library
-       gcc -O3 -shared -o eval_pol3_full.so eval_pol3_full.c -lm -fopenmp
+       gcc -O3 -shared -o eval_pol3_full.so eval_pol3_full.c -lm -fopenmp -fPIC
 """
 import os
 import ctypes

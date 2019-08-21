@@ -3,6 +3,8 @@ from collections import namedtuple
 from ctypes import Structure, c_double, c_int, POINTER, Array
 import pickle
 from eval_pol3_wrapper import pol3_total
+import pickle
+import numpy as np
 
 ############################################################################################
 #                                                                                          #
@@ -191,7 +193,7 @@ if __name__ == '__main__':
     import pickle
 
     delta_freq = 1
-    comb_size = 100
+    comb_size = 10
     transition = CTransition(0.5, 1.)
 
     molecule = ADict(
@@ -217,7 +219,7 @@ if __name__ == '__main__':
     )
 
     params = ADict(
-        N_frequency=2000,
+        N_frequency=200,
         comb_size=comb_size,
         freq_halfwidth=2.*delta_freq*comb_size,
         omega_M1=0.07,
@@ -288,32 +290,53 @@ if __name__ == '__main__':
         print(time.time() - start)
         plt.show()
 
-    def plot_no_modulations():
+    def plot_no_modulations(k):
         pol3 = get_polarization3(molecule, params, [params.omega_M2, params.omega_M2, params.omega_M1])
         # pickle.dump({"pol3_2_20000_3": pol3}, open("Plots/pol23.p", "wb"))
-        fig, ax1 = plt.subplots()
-        fig.suptitle("$P^{(3)}(\\omega)$ with level structure 0 - 2 - 200000 - 3")
+        ax[k].plot(frequency / delta_freq, np.abs(pol3), 'k', linewidth=1.)
+        # comb_plot(frequency / delta_freq, pol3, ax[k], 'k', linewidth=2.)
+        ax[k].set_ylabel('$P^{(3)}(\\omega)$', color='k')
+        ax[k].tick_params('y', colors='k')
+        ax[k].set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
+        ax2 = ax[k].twinx()
+        comb_plot(frequency / delta_freq, field1, ax2, 'b', alpha=0.3, linewidth=0.5)
+        comb_plot(frequency / delta_freq, field2, ax2, 'r', alpha=0.3, linewidth=0.5)
 
-        # ax1.plot(frequency / delta_freq, np.abs(pol3), 'k', linewidth=2.)
-        comb_plot(frequency / delta_freq, np.abs(pol3), ax1, 'k', linewidth=2.)
-        ax1.set_ylabel('$P^{(3)}(\\omega)$', color='k')
-        ax1.tick_params('y', colors='k')
-        ax1.set_xlabel("$\\omega_1 + \\omega_2 - \\omega_3 + \\Delta \\omega$ (in GHz)")
-        ax2 = ax1.twinx()
-        comb_plot(frequency / delta_freq, field1, ax2, 'b', alpha=0.3)
-        comb_plot(frequency / delta_freq, field2, ax2, 'r', alpha=0.3)
-        ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
-        ax2.tick_params('y', colors='b')
-        print(time.time() - start)
-        plt.show()
+        pol3_matrix[:, k] = pol3
+        # ax2.set_ylabel('Fields $E(\\omega)$ in $fs^{-1}$', color='b')
+        # ax2.tick_params('y', colors='b')
 
-    plot_no_modulations()
+    fig, ax = plt.subplots(nrows=1, ncols=3)
+    fig.suptitle("$P^{(3)}(\\omega)$ with level structure 0 - 2 - 200000 - 3")
 
-    frequency = np.linspace(2.01e3, 2.02e3, 10000)
-    plt.figure()
-    plt.plot(frequency, linear_spectra(molecule, frequency), 'r')
-    molecule.energies = np.cumsum([0, 3, 2.01e3, 3]) * delta_freq
-    plt.plot(frequency, linear_spectra(molecule, frequency), 'b')
-    molecule.energies = np.cumsum([0, 3, 2.01e3, 2]) * delta_freq
-    plt.plot(frequency, linear_spectra(molecule, frequency), 'g')
+    pol3_matrix = np.empty((params.freq.size, 3), dtype=np.complex)
+
+    for i in range(3):
+        molecule.energies = np.cumsum([0, 3+2*i, 2.01e3, 2+2*i]) * delta_freq
+        plot_no_modulations(i)
+
+    print(pol3_matrix)
+
+    with open("pol3_matrix.pickle", "wb") as f:
+        pickle.dump(
+            {
+                'pol3_matrix': np.abs(pol3_matrix),
+                'freq': frequency/delta_freq
+            }, f
+
+        )
+
+    with open("pol3_matrix.pickle", "rb") as f:
+        data = pickle.load(f)
+
+    frequency = data['freq']
+    pol3_mat = data['pol3_matrix'].real
+
+    # frequency = np.linspace(2.01e3, 2.02e3, 10000)
+    # plt.figure()
+    # plt.plot(frequency, linear_spectra(molecule, frequency), 'r')
+    # molecule.energies = np.cumsum([0, 3, 2.01e3, 3]) * delta_freq
+    # plt.plot(frequency, linear_spectra(molecule, frequency), 'b')
+    # molecule.energies = np.cumsum([0, 3, 2.01e3, 2]) * delta_freq
+    # plt.plot(frequency, linear_spectra(molecule, frequency), 'g')
     plt.show()

@@ -46,22 +46,18 @@ class RhoPropagate:
         #
         # field_t1 = (self.d_omega * minus * fftpack.fft(minus * field_omega1, overwrite_x=True))
         # field_t2 = (self.d_omega * minus * fftpack.fft(minus * field_omega2, overwrite_x=True))
-        # self.field_t = field_t1 + field_t2
-        #
-        # plt.figure()
-        # plt.subplot(211)
-        # plt.plot(self.omega, field_omega1)
+        # seluy mn  plot(self.omega, field_omega1)
         # plt.plot(self.omega, field_omega2)
         # plt.subplot(212)
         # self.field_t /= self.field_t.max()
         # plt.plot(self.t, self.field_t)
 
-        self.timeDIM = 500000
-        self.timeAMP = 150.
+        self.timeDIM = 5000
+        self.timeAMP = 100.
         self.dt = self.timeAMP * 2. / self.timeDIM
         n = np.linspace(-self.N_comb, self.N_comb-1, 2 * self.N_comb)[np.newaxis, :]
 
-        self.time = np.linspace(-self.timeAMP, self.timeAMP, self.timeDIM)[:, np.newaxis]
+        self.time = np.linspace(-self.timeAMP, self.timeAMP-self.dt, self.timeDIM)[:, np.newaxis]
         exact_FT_1 = np.pi * np.exp(-self.tau*np.abs(self.time) - 1j*(self.omega_M1 + self.delta_omega*n)*self.time)
         exact_FT_1 = exact_FT_1.sum(axis=1)
 
@@ -72,8 +68,10 @@ class RhoPropagate:
         exact_FT /= exact_FT.max()
 
         plt.figure()
-        plt.plot(self.time, exact_FT_1)
-        plt.plot(self.time, exact_FT_2)
+
+        plt.subplot(311)
+        plt.plot(self.time, exact_FT_1, 'r')
+        plt.plot(self.time, exact_FT_2, 'b')
 
         self.H0 = np.diag(self.energies)
         self.H = self.H0.copy()
@@ -83,7 +81,7 @@ class RhoPropagate:
         self.L_update = np.zeros_like(self.rho, dtype=np.complex)
         self.rho_t = np.empty((3, self.timeDIM))
         self.mu_t = np.empty((self.timeDIM,))
-        self.field_t = exact_FT * 1000
+        self.field_t = exact_FT
 
     def L_operator(self, Qmat, indx):
         self.Lfunc[:] = 0.
@@ -107,7 +105,7 @@ class RhoPropagate:
     def propagate(self):
 
         # for i in range(self.timeDIM):
-        for i in range(30000):
+        for i in range(self.timeDIM):
             print(i)
             self.L_update = self.rho.copy()
             for j in range(1, 8):
@@ -145,10 +143,9 @@ if __name__ == '__main__':
     molecule = RhoPropagate(**qsys_params)
     molecule.propagate()
 
-    plt.figure()
-
     plt.subplot(312)
-    plt.plot(molecule.time, molecule.rho_t[0], 'r')
+
+    plt.plot(molecule.time.sum(axis=1), molecule.rho_t[0], 'r')
     plt.plot(molecule.time, molecule.rho_t[1], 'b')
     plt.plot(molecule.time, molecule.rho_t[2], 'k')
 

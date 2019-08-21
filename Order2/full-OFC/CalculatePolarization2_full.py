@@ -167,23 +167,23 @@ if __name__ == '__main__':
 
         # dipole value and line width for each transition
         transitions={
-            (0, 1): CTransition(2.25e2, 1.),
-            (1, 0): CTransition(2.25e2, 1.),
-            (0, 2): CTransition(2.50e2, 1.),
-            (2, 0): CTransition(2.50e2, 1.),
-            (1, 2): CTransition(2.75e2, 1.),
-            (2, 1): CTransition(2.75e2, 1.),
+            (0, 1): CTransition(2.25e0, 1.),
+            (1, 0): CTransition(2.25e0, 1.),
+            (0, 2): CTransition(2.50e0, 1.),
+            (2, 0): CTransition(2.50e0, 1.),
+            (1, 2): CTransition(2.75e0, 1.),
+            (2, 1): CTransition(2.75e0, 1.),
         }
     )
 
     params = ADict(
         central_freq=molecule.energies[2],
-        comb_size=200,
-        omega_M1=3,
-        omega_M2=7,
+        comb_size=100,
+        omega_M1=3.3,
+        omega_M2=7.2,
         gamma=5e-6,
         delta_freq=delta_freq,
-        width_g=6.,
+        width_g=4.,
         N_terms=10
     )
 

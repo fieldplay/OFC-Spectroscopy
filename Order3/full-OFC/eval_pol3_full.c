@@ -69,7 +69,7 @@ void pol3_XSR(
                     for(int r = r0 - N_terms; r < r0 + N_terms; r++)
                     {
                         const cmplx term_X = omega + M_field_j + r * delta_freq - wg_2 + gamma * I;
-                        const cmplx term_S = omega + M_field_j - M_field_i + (r - q) * delta_freq - wg_2 + 2. * gamma * I;
+                        const cmplx term_S = omega + M_field_j - M_field_i + (r - q) * delta_freq - wg_1 + 2. * gamma * I;
                         result += 1./(term_X * term_S * term_R);
                     }
 
@@ -106,7 +106,7 @@ void pol3_XSZ(
                     for(int r = r0 - N_terms; r < r0 + N_terms; r++)
                     {
                         const cmplx term_X = omega + M_field_j + r * delta_freq - wg_2 + gamma * I;
-                        const cmplx term_S = omega + M_field_j - M_field_i + (r - q) * delta_freq - wg_2 + 2. * gamma * I;
+                        const cmplx term_S = omega + M_field_j - M_field_i + (r - q) * delta_freq - wg_1 + 2. * gamma * I;
                         const cmplx term_Z = omega - (M_field_h + M_field_i - M_field_j) - (p + q - r) * delta_freq + 3. * gamma * I;
                         result += 1./(term_X * term_S * term_Z);
                     }
@@ -135,8 +135,7 @@ void pol3_YRZstar(
             const double omega = freq[out_i];
 
             cmplx result = 0. + 0. * I;
-            int r0 = ceil((crealf(wg_2) - M_field_h - M_field_i)/delta_freq)
-                            - ceil((omega - (M_field_h + M_field_i - M_field_j))/delta_freq);
+            int r0 = p0 + q0 - ceil((omega - (M_field_h + M_field_i - M_field_j))/delta_freq);
 
             for(int p = p0 - N_terms; p < p0 + N_terms; p++)
             {
@@ -166,7 +165,7 @@ void pol3(
 )
 {
     pol3_XYR(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, wg_3, wg_2, wg_1, sign);
-    pol3_XYR(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, wg_3, wg_2, wg_1, sign);
+    pol3_XSR(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, wg_3, wg_2, wg_1, sign);
     pol3_XSZ(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, wg_3, wg_2, wg_1, sign);
     pol3_YRZstar(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, wg_3, wg_2, wg_1, sign);
 
@@ -182,12 +181,13 @@ void pol3_total(
     const cmplx wg_ml, const cmplx wg_mn, const cmplx wg_nm, const cmplx wg_vn, const cmplx wg_vm
 )
 {
-    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, conj(wg_vl), conj(wg_nl), -conj(wg_vl), -1);
-    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, conj(wg_nv), conj(wg_mv), wg_vl, 1);
-    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, conj(wg_nv), -wg_vm, -conj(wg_ml), 1);
-    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, conj(wg_mn), -wg_nl, wg_vl, -1);
-    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, -wg_vn, conj(wg_nl), -conj(wg_ml), 1);
-    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, -wg_nm, conj(wg_mv), wg_vl, -1);
-    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, -wg_nm, -wg_mv, -conj(wg_ml), -1);
-    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, -wg_ml, -wg_nl, wg_vl, 1);
+    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, wg_vl, wg_nl, wg_ml, -1);
+    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, wg_nv, wg_mv, -conj(wg_vl), 1);
+    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, wg_nv, -conj(wg_vm), wg_ml, 1);
+    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, wg_mn, -conj(wg_nl), -conj(wg_vl), -1);
+    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, -conj(wg_vn), wg_nl, wg_ml, 1);
+    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, -conj(wg_nm), wg_mv, -conj(wg_vl), -1);
+    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, -conj(wg_nm), -conj(wg_mv), wg_ml, -1);
+    pol3(out, freq, freq_size, delta_freq, gamma, M_field_h, M_field_i, M_field_j, width_g, N_terms, -conj(wg_ml), -conj(wg_nl), -conj(wg_vl), 1);
+
 }

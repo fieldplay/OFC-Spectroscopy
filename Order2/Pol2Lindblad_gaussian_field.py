@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
     gamma = np.asarray([[0.0, 0.2, 0.1], [0.2, 0.0, 0.15], [0.1, 0.15, 0.0]])*1e-2
     np.fill_diagonal(gamma, 0.)
-    energies = np.array((0., 50, 100))
+    energies = np.array((0., 2, 4))
     rho_0 = np.zeros((len(energies), len(energies)), dtype=np.complex)
     rho_0[0, 0] = 1. + 0j
     mu = np.ones_like(rho_0)*2
@@ -101,9 +101,9 @@ if __name__ == '__main__':
         rho_0=rho_0,
         omegaAMP=321,
         omegaDIM=65536,
-        N_comb=512,
-        tau=1e-2,
-        fieldAMP=1e-4
+        N_comb=256,
+        tau=.25e-1,
+        fieldAMP=5e-4
     )
 
     molecule = RhoPropagate(**ThreeLevel)
