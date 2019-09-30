@@ -2,11 +2,20 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f485a389-eb2c-45bb-8465-818f4ae14d8c" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/Order2.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/FT.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Pol2Lindblad_gaussian_field.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../Order3/.idea/other.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../Order3/.idea/vcs.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../Order3/n-OFC/Discrimination.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Order3/n-OFC/PolarizationTerms.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../Order3/n-OFC/QRD.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Order3/n-OFC/pol3_matrix.pickle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/LindbladPropagatorPolarization.py" beforeDir="false" afterPath="$PROJECT_DIR$/LindbladPropagatorPolarization.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pol2Lindblad.py" beforeDir="false" afterPath="$PROJECT_DIR$/Pol2Lindblad.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Pol2Lindblad.so" beforeDir="false" afterPath="$PROJECT_DIR$/Pol2Lindblad.so" afterDir="false" />
@@ -19,6 +28,8 @@
       <change beforePath="$PROJECT_DIR$/../Order3/full-OFC/CalculatePolarization3_full.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Order3/full-OFC/CalculatePolarization3_full.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Order3/full-OFC/FT_Denys.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Order3/full-OFC/FT_Denys.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Order3/full-OFC/QRD_pol3.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Order3/full-OFC/QRD_pol3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Order3/full-OFC/eval_pol3_full.so" beforeDir="false" afterPath="$PROJECT_DIR$/../Order3/full-OFC/eval_pol3_full.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Order3/full-OFC/eval_pol3_wrapper_full.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Order3/full-OFC/eval_pol3_wrapper_full.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Order3/n-OFC/CalculatePolarization3.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Order3/n-OFC/CalculatePolarization3.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -29,11 +40,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FT.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="353">
-              <caret line="48" column="30" lean-forward="true" selection-start-line="48" selection-start-column="30" selection-end-line="48" selection-end-column="33" />
+            <state relative-caret-position="-230">
+              <caret line="48" column="30" selection-start-line="48" selection-start-column="30" selection-end-line="48" selection-end-column="33" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -41,11 +52,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Pol2Lindblad.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1944">
-              <caret line="81" column="22" selection-start-line="81" selection-start-column="22" selection-end-line="81" selection-end-column="22" />
+            <state relative-caret-position="-1272">
+              <caret line="34" column="27" selection-start-line="34" selection-start-column="27" selection-end-line="34" selection-end-column="27" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -61,8 +72,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Pol2Lindblad.py" />
         <option value="$PROJECT_DIR$/FT.py" />
+        <option value="$PROJECT_DIR$/Pol2Lindblad.py" />
       </list>
     </option>
   </component>
@@ -101,6 +112,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
@@ -122,7 +134,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.FT">
+  <component name="RunManager" selected="Python.Pol2Lindblad">
     <configuration name="FT" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Order2" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -169,8 +181,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.FT" />
         <item itemvalue="Python.Pol2Lindblad" />
+        <item itemvalue="Python.FT" />
       </list>
     </recent_temporary>
   </component>
@@ -186,11 +198,12 @@
       <updated>1560896325421</updated>
       <workItem from="1560896326531" duration="5758000" />
       <workItem from="1561483446882" duration="894000" />
+      <workItem from="1563973488062" duration="1015000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="6652000" />
+    <option name="totallyTimeSpent" value="7667000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="25" width="1853" height="1055" extended-state="6" />
@@ -218,19 +231,42 @@
       <window_info anchor="right" auto_hide="true" id="SciView" order="3" show_stripe_button="false" type="FLOATING" weight="0.32982844" />
       <window_info anchor="right" id="Database" order="4" />
     </layout>
+    <layout-to-restore>
+      <window_info content_ui="combo" id="Project" order="0" weight="0.24681793" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32937366" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" />
+      <window_info anchor="bottom" id="Database Changes" order="9" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="bottom" id="Terminal" order="11" />
+      <window_info anchor="bottom" id="Python Console" order="12" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" auto_hide="true" id="SciView" order="3" show_stripe_button="false" type="FLOATING" weight="0.32982844" />
+      <window_info anchor="right" id="Database" order="4" />
+    </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Order2$FT.coverage" NAME="FT Coverage Results" MODIFIED="1561483723920" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Order2$Pol2Lindblad.coverage" NAME="Pol2Lindblad Coverage Results" MODIFIED="1560900054474" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Order2$Pol2Lindblad.coverage" NAME="Pol2Lindblad Coverage Results" MODIFIED="1563974439118" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/FT.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="353">
-          <caret line="48" column="30" lean-forward="true" selection-start-line="48" selection-start-column="30" selection-end-line="48" selection-end-column="33" />
+        <state relative-caret-position="-230">
+          <caret line="48" column="30" selection-start-line="48" selection-start-column="30" selection-end-line="48" selection-end-column="33" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -239,8 +275,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Pol2Lindblad.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1944">
-          <caret line="81" column="22" selection-start-line="81" selection-start-column="22" selection-end-line="81" selection-end-column="22" />
+        <state relative-caret-position="-1272">
+          <caret line="34" column="27" selection-start-line="34" selection-start-column="27" selection-end-line="34" selection-end-column="27" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

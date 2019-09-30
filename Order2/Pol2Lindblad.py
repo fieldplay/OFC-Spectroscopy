@@ -31,8 +31,8 @@ class RhoPropagate:
         self.alpha = 1.0 / (2.0 * (self.omegaAMP / 4) ** 2)
         self.omega_0 = np.linspace(-self.omegaAMP, self.omegaAMP, self.N_comb)[np.newaxis, :]
 
-        self.omega_M1 = 0.85 * 2 * self.omegaAMP / self.N_comb
-        self.omega_M2 = 0.35 * 2 * self.omegaAMP / self.N_comb
+        self.omega_M1 = 0.35 * 2 * self.omegaAMP / self.N_comb
+        self.omega_M2 = 0.75 * 2 * self.omegaAMP / self.N_comb
 
         self.field_omega1 = (
                 self.fieldAMP*np.exp(-self.alpha * self.omega ** 2)
@@ -86,7 +86,7 @@ def render_ticks(axis, labelsize):
 
 if __name__ == '__main__':
 
-    gamma = np.asarray([[0.0, 0.2, 0.1], [0.2, 0.0, 0.15], [0.1, 0.15, 0.0]])*1e-2
+    gamma = np.asarray([[0.0, 0.2, 0.1], [0.2, 0.0, 0.15], [0.1, 0.15, 0.0]])*1e-3
     np.fill_diagonal(gamma, 0.)
     energies = np.array((0., 50, 100))
     rho_0 = np.zeros((len(energies), len(energies)), dtype=np.complex)
@@ -101,8 +101,8 @@ if __name__ == '__main__':
         rho_0=rho_0,
         omegaAMP=321,
         omegaDIM=65536,
-        N_comb=512,
-        tau=1e-2,
+        N_comb=32,
+        tau=1e-3,
         fieldAMP=1e-4
     )
 
